@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vanilla JS QR Code Generator with Presets</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        select,
+        button {
+            margin-top: 10px;
+            display: block;
+        }
+
+        #qrcode-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 300px;
+        }
+
+        #qrcode {
+            text-align: center;
+        }
+
+        #bottom-title {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+            padding-bottom: 30px;
+        }
+
+        @media print {
+
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                width: 100vw;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            select,
+            button,
+            h2,
+            label {
+                display: none;
+            }
+
+            .container {
+                width: 100%;
+                height: 100%;
+                justify-content: center;
+                align-items: center;
+                display: flex;
+                flex-direction: column;
+                page-break-after: avoid;
+                page-break-before: avoid;
+                page-break-inside: avoid;
+            }
+
+            #qrcode-wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            #bottom-title {
+                margin-top: 20px;
+                font-size: 18px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>QR Code Generator</h2>
+
+        <label for="preset-select">Choose a preset:</label>
+        <select id="preset-select">
+            <option value="">-- Select a preset --</option>
+        </select>
+
+        <button id="generate-btn">Generate QR Code</button>
+
+        <div id="qrcode-wrapper">
+            <div id="qrcode"></div>
+        </div>
+
+        <div id="bottom-title"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const presets = [
+            {
+                en: "Machine Repeatedly Rejecting Parts\nThe system is currently rejecting most or all parts. Please investigate reject logic or sensor alignment.",
+                es: "Máquina rechazando piezas repetidamente"
+            },
+            {
+                en: "Operator Needs Assistance\nImmediate help required. The operator is unable to proceed due to an issue with the machine or process.",
+                es: "Operador necesita asistencia"
+            },
+            {
+                en: "Quality Hold – Do Not Operate\nThis machine is under quality review. Do not resume operation until cleared by QA or Engineering.",
+                es: "Retención por calidad – No operar"
+            },
+            {
+                en: "Engineering Currently Training the Machine\nEngineering team is configuring or learning machine behavior for optimization. Please do not interrupt.",
+                es: "Ingeniería entrenando la máquina"
+            },
+            {
+                en: "In Testing Phase – Use with Caution\nThe machine is undergoing testing. Results may be inconsistent. Only authorized personnel should operate.",
+                es: "En fase de prueba – Usar con precaución"
+            },
+            {
+                en: "Machine Offline for Maintenance\nThis machine is temporarily shut down for preventive or corrective maintenance.",
+                es: "Máquina fuera de línea por mantenimiento"
+            },
+            {
+                en: "Fault in Box Feeder/Loader Detected\nThere is an issue with the material feed or loading mechanism. Check for jams or misfeeds.",
+                es: "Falla detectada en el alimentador/cargador de cajas"
+            },
+            {
+                en: "Under Investigation by Engineering\nA technical issue has been reported and is being actively investigated by Engineering.",
+                es: "Bajo investigación por ingeniería"
+            },
+            {
+                en: "Machine in Calibration Mode\nDo not run production – the system is being calibrated for accuracy and alignment.",
+                es: "Máquina en modo de calibración"
+            },
+            {
+                en: "Material Issue Detected\nIncorrect or incompatible material detected. Verify material specs and replace if needed.",
+                es: "Problema de material detectado"
+            },
+            {
+                en: "Process Adjustment in Progress\nSettings or parameters are being modified for optimization. Please wait for completion.",
+                es: "Ajuste de proceso en curso"
+            },
+            {
+                en: "Temporarily Halted Due to Safety Concern\nA potential safety issue has been identified. Await clearance from Safety/Engineering.",
+                es: "Detenido temporalmente por motivo de seguridad"
+            },
+            {
+                en: "Rebooting – Wait for System Restart\nMachine is currently rebooting. Operation will resume shortly.",
+                es: "Reiniciando – Esperando reinicio del sistema"
+            },
+            {
+                en: "Waiting for Parts/Consumables\nMachine idle due to lack of materials or required consumables. Supply pending.",
+                es: "Esperando piezas/consumibles"
+            }
+        ];
+
+        const select = document.getElementById('preset-select');
+        const button = document.getElementById('generate-btn');
+        const qrcodeContainer = document.getElementById('qrcode');
+        const bottomTitle = document.getElementById('bottom-title');
+
+        // Populate dropdown
+        presets.forEach((preset, index) => {
+            const option = document.createElement('option');
+            const titleText = preset.en.split('\n')[0];
+            option.value = index;
+            option.textContent = titleText;
+            option.setAttribute('data-fulltext', preset.en);
+            option.title = `${titleText} / ${preset.es}`;
+            select.appendChild(option);
+        });
+
+        button.addEventListener('click', () => {
+            const selectedOption = select.options[select.selectedIndex];
+            if (!selectedOption || !selectedOption.value) {
+                alert('Please select a preset message');
+                return;
+            }
+
+            const fullText = selectedOption.getAttribute('data-fulltext');
+            const titleText = fullText.split('\n')[0] + " / " + presets.find(item => fullText.split('\n')[0])?.es;
+
+            // Clear previous QR
+            qrcodeContainer.innerHTML = '';
+
+            // Generate QR code
+            new QRCode(qrcodeContainer, {
+                text: fullText,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Show title at the bottom
+            bottomTitle.textContent = titleText;
+
+            // Trigger print
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        });
+    </script>
+
+
+</body>
+
+</html>

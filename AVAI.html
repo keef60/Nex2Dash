@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TSFlow Multi-File Analyzer</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.18.0/dist/tf.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input[type="file"] { margin-bottom: 20px; }
+    pre { background: #f4f4f4; padding: 10px; margin-bottom: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>TSFlow Multi-File Analyzer</h1>
+  <input type="file" id="fileInput" multiple accept=".txt" />
+  <div id="results"></div>
+
+  <script>
+    class TSFlowAnalyzer {
+      constructor(dataArray, fileMeta) {
+        this.fileName = fileMeta.name;
+        this.modifiedDate = fileMeta.lastModified;
+        this.rawData = dataArray;
+        this.parsed = this.parseData();
+      }
+
+      parseData() {
+        return this.rawData.map(entry => {
+          const [key, rawVal] = entry.split(':');
+          const val = isNaN(Number(rawVal)) ? rawVal : Number(rawVal);
+          return { key, val };
+        });
+      }
+
+      summarizeCategories() {
+        const summary = {};
+        for (const item of this.parsed) {
+          if (typeof item.val === 'string') {
+            if (!summary[item.key]) summary[item.key] = {};
+            summary[item.key][item.val] = (summary[item.key][item.val] || 0) + 1;
+          }
+        }
+        return summary;
+      }
+
+      summarizeJobs() {
+        let pass = 0, fail = 0;
+        for (const item of this.parsed) {
+          if (item.key === 'Pass') pass += Number(item.val);
+          if (item.key === 'Fail') fail += Number(item.val);
+        }
+        const total = pass + fail;
+        const rate = total > 0 ? (pass / total) * 100 : 0;
+        return { pass, fail, rate: rate.toFixed(2) + '%' };
+      }
+
+      buildTensor() {
+        const numeric = this.parsed.map(item => {
+          if (typeof item.val === 'number') return item.val;
+          if (item.val === 'OK') return 1;
+          if (item.val === 'NOK') return 0;
+          return -1;
+        });
+        return tf.tensor2d([numeric]);
+      }
+
+      displayResult(container) {
+        const summary = this.summarizeCategories();
+        const jobStats = this.summarizeJobs();
+        const tensor = this.buildTensor();
+
+        const block = document.createElement('pre');
+        block.textContent = `
+File: ${this.fileName}
+Last Modified: ${new Date(this.modifiedDate).toLocaleString()}
+
+Parsed Entries:
+${JSON.stringify(this.parsed, null, 2)}
+
+Category Summary:
+${JSON.stringify(summary, null, 2)}
+
+Job Stats:
+Pass: ${jobStats.pass}, Fail: ${jobStats.fail}, Pass Rate: ${jobStats.rate}
+
+Tensor:
+${tensor.toString()}
+        `.trim();
+
+        container.appendChild(block);
+
+        console.log(`Tensor for ${this.fileName}:`);
+        tensor.print();
+      }
+    }
+
+    // Handle file uploads
+    document.getElementById('fileInput').addEventListener('change', async function (event) {
+      const files = event.target.files;
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = '';
+
+      for (const file of files) {
+        const text = await file.text();
+        const lines = text
+          .split(/\r?\n/)
+          .map(l => l.trim())
+          .filter(l => l.includes(':'));
+
+        const analyzer = new TSFlowAnalyzer(lines, {
+          name: file.name,
+          lastModified: file.lastModified
+        });
+
+        analyzer.displayResult(resultsContainer);
+      }
+    });
+  </script>
+</body>
+</html>

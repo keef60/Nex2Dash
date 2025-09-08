@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRX-Power - Data Matrix Generator</title>
+
+    <!-- Fomantic UI CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.css">
+    <!-- Fomantic UI JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.3/dist/semantic.min.js"></script>
+    <!-- Barcode Generator -->
+    <script src="https://unpkg.com/bwip-js/dist/bwip-js-min.js"></script>
+
+    <style>
+        body {
+            padding: 3em;
+            background-color: #f9f9f9;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 1em;
+        }
+        .label-preview {
+            margin-top: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui container">
+        <h2 class="ui header">📦 CRX-Power Data Matrix Label Generator</h2>
+
+        <div class="ui form segment">
+            <div class="two fields">
+                <div class="field">
+                    <label>Part Number *</label>
+                    <input type="text" id="pn" placeholder="e.g. 7107768">
+                </div>
+                <div class="field">
+                    <label>Revision *</label>
+                    <input type="text" id="rev" placeholder="e.g. Rev A">
+                </div>
+            </div>
+
+            <div class="three fields">
+                <div class="field">
+                    <label>Manufacture Date *</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="field">
+                    <label>Serial Number *</label>
+                    <input type="text" id="sn" placeholder="e.g. SN12345678">
+                </div>
+                <div class="field">
+                    <label>Lot / Batch Number</label>
+                    <input type="text" id="lot" placeholder="Optional">
+                </div>
+            </div>
+
+            <div class="two fields">
+                <div class="field">
+                    <label>Test Config Code</label>
+                    <input type="text" id="test" placeholder="Optional">
+                </div>
+                <div class="field">
+                    <label>Service Portal URL</label>
+                    <input type="text" id="url" placeholder="Optional">
+                </div>
+            </div>
+
+            <div class="ui buttons">
+                <button class="ui primary button" onclick="generateLabel()">Generate Label</button>
+                <div class="or"></div>
+                <button class="ui orange button" onclick="exportJPEG()">Download JPEG</button>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="ui card label-preview" id="label-card" style="display: none;">
+            <div class="content">
+                <div class="header">Generated Data Matrix</div>
+                <div class="description">Right-click to preview. Click button to download.</div>
+            </div>
+            <div class="extra content">
+                <canvas id="datamatrix" width="150" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let labelData = '';
+
+        function generateLabel() {
+            const pn = document.getElementById('pn').value.trim();
+            const rev = document.getElementById('rev').value.trim();
+            const date = document.getElementById('date').value.trim();
+            const sn = document.getElementById('sn').value.trim();
+            const lot = document.getElementById('lot').value.trim();
+            const test = document.getElementById('test').value.trim();
+            const url = document.getElementById('url').value.trim();
+
+            if (!pn || !rev || !date || !sn) {
+                alert("Please fill in all required (*) fields.");
+                return;
+            }
+
+            const dataObj = {
+                PN: pn,
+                REV: rev,
+                DATE: date,
+                SN: sn
+            };
+
+            if (lot) dataObj.LOT = lot;
+            if (test) dataObj.TEST = test;
+            if (url) dataObj.URL = url;
+
+            labelData = Object.entries(dataObj)
+                .map(([k, v]) => `${k}=${v}`)
+                .join(';');
+
+            try {
+                bwipjs.toCanvas('datamatrix', {
+                    bcid: 'datamatrix',
+                    text: labelData,
+                    scale: 3,
+                    includetext: false
+                });
+
+                document.getElementById('label-card').style.display = 'block';
+            } catch (e) {
+                alert("Error generating Data Matrix: " + e);
+                return;
+            }
+        }
+
+        function exportJPEG() {
+    const canvas = document.getElementById('datamatrix');
+    const sn = document.getElementById('sn').value.trim() || `barcode-${Date.now()}`;
+
+    // Check if the barcode has been generated
+    if (!labelData || canvas.width === 0 || canvas.height === 0) {
+        alert("⚠️ Please click 'Generate Label' first before downloading the barcode.");
+        return;
+    }
+
+    // Create a new canvas with a white background
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+
+    const ctx = exportCanvas.getContext('2d');
+    // Fill white background
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    // Draw barcode on top
+    ctx.drawImage(canvas, 0, 0);
+
+    // Export as JPEG
+    const jpegDataUrl = exportCanvas.toDataURL("image/jpeg", 1.0);
+
+    // Trigger download
+    const link = document.createElement('a');
+    link.href = jpegDataUrl;
+    link.download = `datamatrix-${sn}.jpeg`;
+    link.click();
+}
+
+        function exportJPEG1() {
+            const canvas = document.getElementById('datamatrix');
+            const sn = document.getElementById('sn').value.trim() || `barcode-${Date.now()}`;
+
+            if (!canvas || canvas.width === 0) {
+                alert("Please generate the barcode first.");
+                return;
+            }
+
+            // Create a new canvas with a white background
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = canvas.width;
+            exportCanvas.height = canvas.height;
+
+            const ctx = exportCanvas.getContext('2d');
+            // Fill white background
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+            // Draw barcode on top
+            ctx.drawImage(canvas, 0, 0);
+
+            // Export as JPEG
+            const jpegDataUrl = exportCanvas.toDataURL("image/jpeg", 1.0);
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = jpegDataUrl;
+            link.download = `datamatrix-${sn}.jpeg`;
+            link.click();
+        }
+    </script>
+</body>
+</html>

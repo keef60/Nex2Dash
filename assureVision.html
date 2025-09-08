@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>AssureVision</title>
+
+    <!-- jQuery (required by Semantic UI JavaScript) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- ✅ Fomantic UI CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.js"></script>
+
+    <!-- ✅ Fomantic Calendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui-calendar@0.0.8/dist/calendar.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui-calendar@0.0.8/dist/calendar.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+
+    <style>
+        /* Styling for Specific Date Calendar */
+        #specificDateCalendar {
+            max-width: 250px;
+            margin-top: 1rem;
+            /* Ensure spacing from other elements */
+        }
+
+        /* Margin for Buttons */
+        .ui.buttons>.button {
+            margin-right: 0.5rem;
+        }
+
+        /* Accordion Scroll Customization */
+        .accordion .content {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+            gap: 10px;
+        }
+
+        .accordion .content::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .accordion .content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        /* Body padding */
+        body {
+            padding: 2em;
+            background-color: #F5F5F5;
+
+        }
+
+        /* Styling for the SVG Viewer */
+        #svgViewer {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* SVG Container */
+        .svg-container {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            overflow: auto;
+        }
+
+        /* Right Side Toggles - Align and Style */
+        .ui.form .field .ui.toggle.checkbox {
+            margin-top: 1rem;
+        }
+
+        /* Specific date picker input styling */
+        #specificDateInput {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+
+        /* General Form Spacing Adjustments */
+        .ui.form .fields .field {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Toggle Alignment */
+        .ui.toggle.checkbox {
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* Responsive Design Enhancements */
+        @media (max-width: 768px) {
+            .ui.stackable.grid {
+                display: block;
+                /* Stack content vertically on smaller screens */
+            }
+
+            .ten.wide.column {
+                width: 100%;
+            }
+
+            .six.wide.column {
+                width: 100%;
+                margin-top: 1.5rem;
+            }
+
+            /* Adjust button margins */
+            .ui.buttons>.button {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+    <div class="ui sidebar vertical menu left visible" style="width: 280px; padding: 2rem 1rem;">
+        <div class="item">
+            <!-- Action Buttons -->
+            <div class="ui buttons" style="margin-bottom: 1.5rem;">
+                <button class="ui primary button" id="folderPicker">
+                    <i class="folder open icon"></i>
+                    Folder
+                </button>
+                <button class="ui blue button" id="reloadBtn">
+                    <i class="redo icon"></i>
+                    Reload
+                </button>
+            </div>
+
+            <!-- Filters Section -->
+            <h4 class="ui dividing header">Filters</h4>
+            <div class="ui form">
+                <div class="field">
+                    <label>Key Filter</label>
+                    <div class="ui fluid selection dropdown" id="filterDropdown">
+                        <input type="hidden" name="filter" />
+                        <i class="dropdown icon"></i>
+                        <div class="default text">Select Filter</div>
+                        <div class="menu">
+                            <div class="item" data-value="">All</div>
+                            <!-- Dynamic items -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field" style="margin-top: 1rem;">
+                    <label>Date Filter</label>
+                    <div class="ui fluid selection dropdown" id="dateFilterDropdown">
+                        <input type="hidden" name="dateFilter" />
+                        <i class="dropdown icon"></i>
+                        <div class="default text">All Dates</div>
+                        <div class="menu">
+                            <div class="item" data-value="all">All Dates</div>
+                            <div class="item" data-value="today">Today</div>
+                            <div class="item" data-value="week">This Week</div>
+                        </div>
+                    </div>
+
+                    <div class="ui calendar" id="specificDateCalendar" style="margin-top: 1rem;">
+                        <label>Select Date</label>
+                        <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input type="text" placeholder="Select date" id="specificDateInput" />
+                        </div>
+                        <button class="ui mini button" onclick="clearDate()" style="margin-top: 0.5rem;">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Options -->
+            <h4 class="ui dividing header" style="margin-top: 2rem;">View Options</h4>
+            <div class="ui form">
+                <div class="field" style="margin-top: 1rem;">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" id="viewToggle" />
+                        <label>Chart View</label>
+                    </div>
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" id="stackToggle">
+                        <label>Stacked View</label>
+                    </div>
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" id="showTrainedToggle">
+                        <label>Show Trained Files</label>
+                    </div>
+
+
+                </div>
+                <h4 class="ui dividing header" style="margin-top: 2rem;">Folder Load Options</h4>
+
+                <div class="field" style="margin-top: 1rem;">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" id="autoReloadToggle" />
+                        <label>Auto-Reload</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content container with left margin -->
+    <div class="pusher" style="margin-left: 5px; padding-right: 20rem;padding-left: 5rem;">
+        <!-- Your original content except filters, buttons, and view options -->
+
+        <!-- Global Loader Overlay -->
+        <div id="globalLoader" class="ui active inverted dimmer" style="display: none;">
+            <div class="ui text loader">Loading...</div>
+        </div>
+
+        <h1 class="ui header">
+            <i class="check circle icon green"></i>
+            AssureVision
+            <div class="sub header">Engineered by Keith Carter ENG 026</div>
+        </h1>
+
+        <!-- Image List Accordion -->
+        <div class="ui segment">
+            <h4 class="ui dividing header">Available Images (Grouped by Prefix)</h4>
+            <div class="ui styled fluid accordion" id="imageList"></div>
+        </div>
+
+        <!-- Chart View -->
+        <div id="chartView" class="ui segment" style="display: none;">
+            <h4 class="ui dividing header">Category Summary</h4>
+            <canvas id="summaryChart" height="300"></canvas>
+
+            <h4 class="ui dividing header" style="margin-top: 2rem;">Timeline of Image Captures</h4>
+            <canvas id="timelineChart" style="width: 100%; height: 200px;"></canvas>
+        </div>
+
+
+        <!-- Image Preview & Data -->
+        <div id="imageView" class="ui stackable grid">
+            <div class="ten wide column">
+                <div class="ui segment">
+                    <h4 class="ui header">Preview</h4>
+                    <object id="svgViewer" type="image/svg+xml"></object>
+                    <button class="ui green button" id="saveBtn" style="margin-top: 1rem;">
+                        <i class="save icon"></i>
+                        Train
+                    </button>
+                </div>
+            </div>
+
+            <div class="six wide column">
+                <div class="ui segment">
+                    <h4 class="ui header">Associated Data</h4>
+                    <div style="overflow-x: auto;">
+                        <table class="ui celled compact small table">
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTable">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const folderPicker = document.getElementById('folderPicker');
+        const imageList = document.getElementById('imageList');
+        const svgViewer = document.getElementById('svgViewer');
+        const dataViewer = document.getElementById('dataViewer');
+        const saveBtn = document.getElementById('saveBtn');
+        const viewToggle = document.getElementById('viewToggle');
+        const chartView = document.getElementById('chartView');
+        const imageView = document.getElementById('imageView');
+        const autoReloadToggle = document.getElementById('autoReloadToggle');
+
+
+        let filterString = '';
+        let availableFilters = new Set();
+        let saved = JSON.parse(localStorage.getItem('savedFilenames') || '[]');
+        let currentFilename = null;
+        let dirHandle = null;
+        let summaryData = {};
+        let chartInstance = null;
+        let dateFilter = 'all';
+        let selectedDate = null; // Will hold the date from the calendar
+        let autoReloadInterval = null;
+
+
+        folderPicker.onclick = async () => {
+            dirHandle = await window.showDirectoryPicker();
+            await readFolderContents();
+        };
+
+        document.getElementById('stackToggle')?.addEventListener('change', renderSummaryChart);
+
+        document.getElementById('reloadBtn').onclick = async () => {
+            await readFolderContents();
+        };
+        $('#filterDropdown').dropdown()
+        $('#dateFilterDropdown').dropdown({
+            onChange: function (value) {
+                dateFilter = value;
+                readFolderContents();
+            }
+        });
+
+        const showTrained = document.getElementById('showTrainedToggle')?.checked;
+
+        $('#specificDateCalendar').calendar({
+            type: 'date',
+            formatter: {
+                date: function (date) {
+                    if (!date) return '';
+                    return date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                }
+            },
+            onChange: function (date, text) {
+                selectedDate = date ? new Date(date.setHours(0, 0, 0, 0)) : null;
+                readFolderContents(); // Refresh list when date changes
+            }
+        });
+
+        // Toggle display
+        viewToggle.addEventListener('change', () => {
+            if (viewToggle.checked) {
+                chartView.style.display = 'block';
+                imageView.style.display = 'none';
+            } else {
+                chartView.style.display = 'none';
+                imageView.style.display = 'flex';
+            }
+        });
+
+        // Example: Show global loader when something is being processed
+        function showGlobalLoader() {
+            document.getElementById('globalLoader').style.display = 'block';
+        }
+
+        function hideGlobalLoader() {
+            document.getElementById('globalLoader').style.display = 'none';
+        }
+
+        // Trigger global loader on page load for simulation
+        window.onload = function () {
+            showGlobalLoader();
+            setTimeout(hideGlobalLoader, 3000); // Hide after 3 seconds (simulating data load)
+        }
+
+        autoReloadToggle.addEventListener('change', () => {
+            if (!autoReloadInterval) {
+                autoReloadInterval = setInterval(() => {
+                    if (dirHandle) {
+                        console.log("Auto-reloading folder...");
+                        readFolderContents();
+                    }
+                }, 30000); // 30 seconds
+            } else if (autoReloadInterval) {
+                clearInterval(autoReloadInterval);
+                autoReloadInterval = null;
+                console.log("Auto-reload stopped.");
+            }
+        });
+
+async function readFolderContents() {
+    showGlobalLoader();
+
+    timeSeriesData = [];
+    if (!dirHandle) return;
+
+    imageList.innerHTML = '';
+    summaryData = {};
+    availableFilters.clear();
+
+    const groupedFiles = {};
+    const now = new Date();
+
+    const allSvgFiles = new Map();
+    const allTxtFiles = new Map();
+
+    // Step 1: Collect all files
+    for await (const entry of dirHandle.values()) {
+        if (entry.kind !== 'file') continue;
+        if (entry.name.endsWith('.svg')) {
+            allSvgFiles.set(entry.name, entry);
+        } else if (entry.name.endsWith('.txt')) {
+            allTxtFiles.set(entry.name, entry);
+        }
+    }
+
+    // Step 2: Process TXT files (for data/chart inclusion)
+    for (const [txtName, txtEntry] of allTxtFiles.entries()) {
+        try {
+            const txtFile = await txtEntry.getFile();
+            const txtContent = await txtFile.text();
+
+            const fileDate = new Date(txtFile.lastModified);
+            if (!passesDateFilter(fileDate)) continue;
+
+            const svgName = txtName.replace('.txt', '.svg');
+            const hasSvg = allSvgFiles.has(svgName);
+
+            if (filterString && !txtContent.split(',').some(e => {
+                const [k, v] = e.split(':').map(x => x.trim());
+                return `${k}=${v}` === filterString;
+            })) continue;
+
+            const showTrained = document.getElementById('showTrainedToggle')?.checked;
+            if (!showTrained && saved.includes(svgName)) continue;
+
+            const kvPairs = txtContent.split(',').map(e => {
+                const [k, v] = e.split(':').map(x => x.trim());
+                return { key: k, value: v };
+            });
+
+            const keySet = new Set();
+            for (const { key } of kvPairs) {
+                if (keySet.has(key)) continue;
+                keySet.add(key);
+            }
+
+            const parts = txtName.split('_');
+            const groupKey = parts[0];
+            const sortVal = parseInt(parts[2]?.replace('.txt', '') || '0');
+
+            timeSeriesData.push({
+                timestamp: fileDate,
+                file: svgName,
+                label: kvPairs.map(({ key, value }) => `${key}:${value}`)
+            });
+
+            kvPairs.forEach(({ key, value }) => {
+                if (key && value) {
+                    const label = `${key}=${value}`;
+                    summaryData[label] = (summaryData[label] || 0) + 1;
+                    availableFilters.add(label);
+                }
+            });
+
+            if (!groupedFiles[groupKey]) groupedFiles[groupKey] = [];
+            groupedFiles[groupKey].push({
+                name: svgName,
+                sortValue: sortVal,
+                content: txtContent,
+                hasSvg
+            });
+
+        } catch (e) {
+            console.warn(`Error processing TXT: ${txtName}: ${e.message}`);
+        }
+    }
+
+    // Step 3: Handle SVGs that have NO TXT (image-only, excluded from chart)
+    for (const [svgName, svgEntry] of allSvgFiles.entries()) {
+        const txtName = svgName.replace('.svg', '.txt');
+        if (allTxtFiles.has(txtName)) continue;
+
+        try {
+            const svgFile = await svgEntry.getFile();
+            const fileDate = new Date(svgFile.lastModified);
+            if (!passesDateFilter(fileDate)) continue;
+
+            const parts = svgName.split('_');
+            const groupKey = parts[0];
+            const sortVal = parseInt(parts[2]?.replace('.svg', '') || '0');
+
+            if (!groupedFiles[groupKey]) groupedFiles[groupKey] = [];
+            groupedFiles[groupKey].push({
+                name: svgName,
+                sortValue: sortVal,
+                content: null, // no data
+                hasSvg: true
+            });
+        } catch (e) {
+            console.warn(`Error reading SVG without TXT: ${svgName}`);
+        }
+    }
+
+    // Step 4: Render everything
+    renderGroupedFiles(groupedFiles);
+    renderSummaryChart();
+    renderFilterDropdown();
+    renderTimelineChart();
+
+    hideGlobalLoader();
+}
+
+        let timeSeriesData = []; // global
+
+        async function loadImage(svgFilename, txtContent) {
+            currentFilename = svgFilename;
+            const dataTable = document.getElementById('dataTable');
+            dataTable.innerHTML = '';
+
+
+            // 🕒 Format timestamp from filename to 12-hour format
+            const parts = svgFilename.split('_');
+            const timeRaw = parts[2].replace('.svg', '');
+            let hours = parseInt(timeRaw.slice(0, 2));
+            const minutes = timeRaw.slice(2, 4);
+            const seconds = timeRaw.slice(4, 6);
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+
+            const timeFormatted = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+            // 🖼️ Update header with filename and time
+            document.querySelector('#imageView h4.ui.header').innerHTML = `
+    Preview : ${currentFilename.split('_')[0]} <div class="sub header">Captured at ${timeFormatted}</div>
+  `;
+
+            txtContent.split(',').forEach(entry => {
+                const [key, value] = entry.split(':');
+                if (key && value) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${key.trim()}</td><td>${value.trim()}</td>`;
+                    dataTable.appendChild(row);
+                }
+            });
+            // Set button state
+            if (saved.includes(svgFilename)) {
+                saveBtn.textContent = 'Untrain';
+                saveBtn.classList.remove('green');
+                saveBtn.classList.add('red');
+            } else {
+                saveBtn.textContent = 'Train';
+                saveBtn.classList.remove('red');
+                saveBtn.classList.add('green');
+            }
+
+            try {
+                const svgHandle = await dirHandle.getFileHandle(svgFilename);
+                const svgFile = await svgHandle.getFile();
+                let svgText = await svgFile.text();
+
+
+
+                const bmpMatch = svgText.match(/xlink:href="([^"]+\.bmp)"/i);
+                if (bmpMatch) {
+                    const bmpFilename = bmpMatch[1];
+                    try {
+                        const bmpHandle = await dirHandle.getFileHandle(bmpFilename);
+                        const bmpFile = await bmpHandle.getFile();
+                        const bmpBuffer = await bmpFile.arrayBuffer();
+                        const bmpBase64 = arrayBufferToBase64(bmpBuffer);
+                        const dataUri = `data:image/bmp;base64,${bmpBase64}`;
+                        svgText = svgText.replace(bmpMatch[0], `xlink:href="${dataUri}"`);
+                    } catch (bmpErr) {
+                        console.warn(`⚠️ BMP not found: ${bmpFilename}`);
+                    }
+                }
+
+                const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+                const svgUrl = URL.createObjectURL(svgBlob);
+                svgViewer.setAttribute('data', svgUrl);
+
+
+                // Force reflow
+                setTimeout(() => {
+                    svgViewer.style.display = 'none';
+                    svgViewer.offsetHeight; // Trigger reflowF
+                    svgViewer.style.display = 'block';
+                }, 70);
+
+            } catch (err) {
+                console.error('Error loading SVG:', err);
+                svgViewer.removeAttribute('data');
+            }
+        }
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        function renderSummaryChart() {
+            const ctx = document.getElementById('summaryChart').getContext('2d');
+            const isStacked = document.getElementById('stackToggle')?.checked; // ✅ read toggle
+
+            // Step 1: Build nested object: { field: { value: count } }
+            const fieldValueCounts = {};
+
+            Object.keys(summaryData).forEach(label => {
+                const [field, value] = label.split('=');
+                if (!field || !value) return;
+
+                if (!fieldValueCounts[field]) {
+                    fieldValueCounts[field] = {};
+                }
+
+                fieldValueCounts[field][value] = (fieldValueCounts[field][value] || 0) + summaryData[label];
+            });
+
+            const allFields = Object.keys(fieldValueCounts);
+            const allValues = Array.from(
+                new Set(
+                    Object.values(fieldValueCounts)
+                        .flatMap(obj => Object.keys(obj))
+                )
+            ).sort();
+
+            const datasets = allValues.map((val, index) => ({
+                label: val,
+                data: allFields.map(field => fieldValueCounts[field][val] || 0),
+                backgroundColor: `hsl(${(index * 60) % 360}, 70%, 60%)`
+            }));
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: allFields,
+                    datasets
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: isStacked ? 'Stacked Comparison of Field Values' : 'Grouped Comparison of Field Values'
+                        }
+                    },
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: isStacked, // ✅ stack on X axis
+                            title: {
+                                display: true,
+                                text: 'Field'
+                            }
+                        },
+                        y: {
+                            stacked: isStacked, // ✅ stack on Y axis
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Count'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        let timelineChartInstance = null;
+
+        function renderTimelineChart() {
+            const ctx = document.getElementById('timelineChart').getContext('2d');
+
+            if (timelineChartInstance) {
+                timelineChartInstance.destroy();
+            }
+
+            // Only include valid timestamps
+            const dataPoints = timeSeriesData
+                .filter(entry => entry.timestamp instanceof Date && !isNaN(entry.timestamp))
+                .map((entry, index) => ({
+                    x: index,              // Order or sequence index
+                    y: entry.timestamp,    // Y-axis: time
+                    label: entry.file.split("_")[0]
+                }));
+
+            timelineChartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Event Timeline',
+                        data: dataPoints,
+                        backgroundColor: 'blue',
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Sequence'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        y: {
+                            type: 'time',
+                            time: {
+                                unit: 'minute'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Timestamp'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const point = dataPoints[context.dataIndex];
+                                    const time = new Date(point.y).toLocaleTimeString();
+                                    return `${point.label} - ${time}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+function renderTimelineChartNew() {
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+
+    if (timelineChartInstance) {
+        timelineChartInstance.destroy();
+    }
+
+    const filteredData = timeSeriesData.filter(entry => {
+        const fileDate = entry.timestamp;
+
+        // Apply date filter
+        const now = new Date();
+        if (dateFilter === 'today' && fileDate.toDateString() !== now.toDateString()) return false;
+        if (dateFilter === 'week') {
+            const weekAgo = new Date(now);
+            weekAgo.setDate(now.getDate() - 7);
+            if (fileDate < weekAgo) return false;
+        }
+
+        if (selectedDate) {
+            const fileDateOnly = new Date(fileDate.setHours(0, 0, 0, 0));
+            const selectedOnly = new Date(selectedDate.setHours(0, 0, 0, 0));
+            if (fileDateOnly.getTime() !== selectedOnly.getTime()) return false;
+        }
+
+        // Apply label filter
+        if (filterString) {
+            const [filterKey, filterVal] = filterString.split('=');
+            const found = entry.label.some(label => {
+                const [k, v] = label.split(':').map(x => x.trim());
+                return k === filterKey && v === filterVal;
+            });
+            return found;
+        }
+
+        return true;
+    });
+
+    const grouped = {};
+    filteredData.forEach((entry, index) => {
+        const labelGroup = filterString || 'All';
+        if (!grouped[labelGroup]) grouped[labelGroup] = [];
+        grouped[labelGroup].push({
+            x: index,
+            y: entry.timestamp,
+            label: entry.file
+        });
+    });
+
+    const datasets = Object.keys(grouped).map((group, i) => ({
+        label: group,
+        data: grouped[group],
+        pointBackgroundColor: `hsl(${(i * 60) % 360}, 70%, 50%)`,
+        pointRadius: 5
+    }));
+
+    timelineChartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'linear',
+                    title: { display: true, text: 'Sequence' },
+                    ticks: { stepSize: 1 }
+                },
+                y: {
+                    type: 'time',
+                    time: { unit: 'minute' },
+                    title: { display: true, text: 'Timestamp' }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const point = context.raw;
+                            const time = new Date(point.y).toLocaleTimeString();
+                            return `${point.label} @ ${time}`;
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Filtered Event Timeline'
+                }
+            }
+        }
+    });
+}
+
+
+        function renderFilterDropdown() {
+            const dropdown = $('#filterDropdown');
+            const menu = dropdown.find('.menu');
+            menu.empty();
+
+            // Add "All" option
+            menu.append(`<div class="item" data-value="">All (${Object.values(summaryData).reduce((a, b) => a + b, 0)})</div>`);
+
+            // Sort and show label with count
+            [...availableFilters].sort().forEach(filter => {
+                const count = summaryData[filter] || 0;
+                menu.append(`<div class="item" data-value="${filter}">${filter} (${count})</div>`);
+            });
+
+            dropdown.dropdown('refresh');
+            dropdown.dropdown({
+                onChange: function (value) {
+                    filterString = value;
+                    localStorage.setItem('filterString', value);
+                    readFolderContents();
+                }
+            });
+        }
+
+        function clearDate() {
+            selectedDate = null;
+            $('#specificDateCalendar').calendar('clear');
+            readFolderContents();
+        }
+
+        saveBtn.onclick = () => {
+            if (!currentFilename) return alert('No file selected');
+
+            const savedIndex = saved.indexOf(currentFilename);
+
+            if (saveBtn.textContent === 'Train') {
+                if (savedIndex === -1) {
+                    saved.push(currentFilename);
+                    localStorage.setItem('savedFilenames', JSON.stringify(saved));
+                    alert(`Saved: ${currentFilename}`);
+                    saveBtn.textContent = 'Untrain';
+                    saveBtn.classList.remove('green');
+                    saveBtn.classList.add('red');
+
+                    // Disable button in accordion
+                    const btn = [...document.querySelectorAll('#imageList button')]
+                        .find(b => b.textContent === currentFilename);
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.classList.add('disabled');
+                        btn.title = 'Already trained';
+                    }
+                }
+            } else {
+                // Untrain
+                if (savedIndex !== -1) {
+                    saved.splice(savedIndex, 1);
+                    localStorage.setItem('savedFilenames', JSON.stringify(saved));
+                    alert(`Untrained: ${currentFilename}`);
+                    saveBtn.textContent = 'Train';
+                    saveBtn.classList.remove('red');
+                    saveBtn.classList.add('green');
+
+                    // Re-enable button in accordion
+                    const btn = [...document.querySelectorAll('#imageList button')]
+                        .find(b => b.textContent === currentFilename);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('disabled');
+                        btn.title = '';
+                    }
+                }
+            }
+        };
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AssureVision</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- jQuery (required by Semantic UI JavaScript) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- CoreUI CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.0.0/dist/css/coreui.min.css" rel="stylesheet">
+    <!-- CoreUI Icons (for cil-speedometer, etc.) -->
+    <link href="https://cdn.jsdelivr.net/npm/@coreui/icons@3.0.0/css/all.min.css" rel="stylesheet">
+    <!-- CoreUI CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.0.0/dist/css/coreui.min.css" rel="stylesheet">
+    <!-- CoreUI JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.0.0/dist/js/coreui.bundle.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-container {
+            padding: 1rem;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar border-end bg-light">
+        <div class="sidebar-header border-bottom p-3">
+            <div class="sidebar-brand h5">AssureVision</div>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-title px-3 mt-3">Main Menu</li>
+
+            <li class="nav-item">
+                <a class="nav-link sidebar-link active" data-target="content1" href="#">
+                    <i class="nav-icon cil-speedometer"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" data-target="content2" href="#">
+                    <i class="nav-icon cil-chart"></i> Reports
+                    <span class="badge bg-primary ms-auto">NEW</span>
+                </a>
+            </li>
+
+            <li class="nav-item nav-group show">
+                <a class="nav-link nav-group-toggle" href="#">
+                    <i class="nav-icon cil-puzzle"></i> More Options
+                </a>
+                <ul class="nav-group-items">
+                    <li class="nav-item">
+                        <a class="nav-link sidebar-link" data-target="content3" href="#">
+                            <span class="nav-icon"><span class="nav-icon-bullet"></span></span> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link sidebar-link" data-target="content4" href="#">
+                            <span class="nav-icon"><span class="nav-icon-bullet"></span></span> Help
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+
+        </ul>
+        <div class="sidebar-footer border-top p-2 text-center">
+            <button class="sidebar-toggler btn btn-sm btn-outline-secondary">Toggle</button>
+        </div>
+    </div>
+
+    <!-- Global Loader Overlay 
+    <div id="globalLoader"
+        class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center bg-dark bg-opacity-75 text-white"
+        style="z-index: 1050; display: block;">
+        <div class="text-center">
+            <div class="h5 mb-3">Loading...</div>
+
+            <div class="progress w-100" style="max-width: 300px;">
+                <div id="progressBar" class="progress-bar bg-info" role="progressbar" style="width: 0%;"
+                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    0%
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+
+    <!-- Content Area -->
+    <div class="content-wrapper">
+
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom p-3 align-items-center">
+            <!-- Search Form -->
+            <form class="d-flex me-2" role="search">
+                <input class="form-control me-2 " id="search" type="search" placeholder="Search..." aria-label="Search">
+            </form>
+
+            <!-- Open File Button -->
+            <button class="btn btn-outline-secondary me-2" id="folderPicker">Open File</button>
+
+            <!-- Filter Dropdown -->
+            <div class="dropdown me-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-coreui-toggle="dropdown">
+                    Filter
+                </button>
+                <ul class="dropdown-menu" id="filterDropdown" aria-labelledby="filterDropdownButton">
+                    <!-- dynamically populated by JS -->
+                </ul>
+            </div>
+
+            <!-- Calendar Input -->
+            <div class="mb-3">
+                <label for="datePicker" class="form-label">Pick a date</label>
+                <input type="text" class="form-control" id="datePicker" placeholder="Select date">
+            </div>
+        </nav>
+
+
+        <!-- Main Content Area -->
+        <div class="content-container">
+            <div id="content1" class="content-section">
+                <!-- Tab Pane: Dashboard Stats -->
+                <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+                    <div class="p-4">
+                        <h2 class="mb-4">Dashboard Stats</h2>
+
+                        <!-- Stats Container -->
+                        <div class="row text-center" id="stats-container-main">
+                            <!-- Example Stat Item -->
+
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="h4 mb-2">1,234</div>
+                                        <div class="text-medium-emphasis">Users</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+
+                        <!-- Divider -->
+                        <hr class="my-4">
+
+                        <!-- Summary Container -->
+                        <div id="summary-container"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="content2" class="content-section d-none"><!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-3" id="mainTab" role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="tab-summary-tab" data-coreui-toggle="tab" href="#tab-summary"
+                            role="tab">Category Summary</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="tab-timeline-tab" data-coreui-toggle="tab" href="#tab-timeline"
+                            role="tab">Timeline</a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="mainTabContent">
+
+                    <!-- Tab 2: Category Summary -->
+                    <div class="tab-pane fade" id="tab-summary" role="tabpanel">
+                        <div class="p-4">
+                            <h3 class="mb-4 border-bottom pb-2">Summary Chart</h3>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">View Options</h5>
+
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="stackToggle">
+                                        <label class="form-check-label" for="stackToggle">Stacked View</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <canvas id="summaryChart" height="300"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Timeline -->
+                    <div class="tab-pane fade" id="tab-timeline" role="tabpanel">
+                        <div class="p-4">
+                            <h2 class="mb-4">Timeline of Image Captures</h2>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="text-center border-bottom pb-2 mb-3">Time Filter</h5>
+
+                                    <form id="timelineFilterForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="startTimeInput" class="form-label">Start Time</label>
+                                                <input type="time" class="form-control" id="startTimeInput">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="endTimeInput" class="form-label">End Time</label>
+                                                <input type="time" class="form-control" id="endTimeInput">
+                                            </div>
+                                        </div>
+
+                                        <button type="button" class="btn btn-primary" id="applyFilterBtn">Apply
+                                            Filter</button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <canvas id="timelineChart" style="width: 100%; height: 200px;"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="content3" class="content-section d-none "><!-- Tab 4: System Health Stats -->
+                <div class="tab-pane fade show active" id="tab-health" role="tabpanel">
+                    <div class="p-4">
+                        <h2 class="mb-4">System Health Stats</h2>
+
+                        <!-- Heartbeat Chart -->
+                        <canvas id="heartbeatChart" height="200" class="mb-4"></canvas>
+
+                        <!-- Divider -->
+                        <hr class="my-4">
+
+                        <!-- System Health Label -->
+                        <div class="mb-4 text-center" id="system-health-label">
+                            <!-- Example: <span class="badge bg-success">Healthy</span> -->
+                        </div>
+
+                        <!-- Stats Container -->
+                        <div class="row text-center" id="stats-container">
+                            <!-- Example Stat Card -->
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="h4 mb-2">37%</div>
+                                        <div class="text-medium-emphasis">CPU Usage</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- More cards can be dynamically inserted -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="content4" class="content-section d-none"><!-- Tabs Navigation -->
+                <ul class="nav nav-tabs mb-3" id="infoTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="tab-info-deck-tab" data-coreui-toggle="tab" href="#tab-info-deck"
+                            role="tab">Info Deck</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="tab-image-view-tab" data-coreui-toggle="tab" href="#tab-image-view"
+                            role="tab">Image Preview & Data</a>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="infoTabContent">
+
+                    <!-- Tab 5: Info Deck Stats -->
+                    <div class="tab-pane fade show active" id="tab-info-deck" role="tabpanel">
+                        <div class="p-4">
+                            <h2 class="mb-4">Info Deck</h2>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+
+                                    <h5 class="border-bottom pb-2 mb-3">Sort & Filter</h5>
+
+                                    <div class="row align-items-center g-3">
+                                        <div class="col-md-3 d-flex align-items-center">
+                                            <span class="badge bg-secondary me-3">Sort by Recent</span>
+                                            <button type="button" class="btn btn-outline-secondary" id="sortByDateBtn"
+                                                title="Toggle sort direction">
+                                                <i class="bi bi-sort-down"></i> <!-- Bootstrap Icons -->
+                                            </button>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <form id="filterFormCardGrid">
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="startTimeInputCardGrid" class="form-label">Start
+                                                            Time</label>
+                                                        <input type="time" id="startTimeInputCardGrid"
+                                                            class="form-control">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="endTimeInputCardGrid" class="form-label">End
+                                                            Time</label>
+                                                        <input type="time" id="endTimeInputCardGrid"
+                                                            class="form-control">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-primary mt-4 w-100"
+                                                id="applyFilterBtnCardGrid">Apply Filter</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Card Grid Container -->
+                            <div id="cardGridContainer" class="row row-cols-1 row-cols-md-3 g-3">
+                                <!-- Cards dynamically injected here -->
+                            </div>
+
+                            <!-- Virtual container -->
+                            <div id="virtual-container" class="mt-4">
+                                <div id="virtual-spacer"></div>
+                                <div id="virtual-viewport"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Image Preview & Data -->
+                    <div class="tab-pane fade" id="tab-image-view" role="tabpanel">
+                        <div class="p-4">
+                            <h2 class="mb-4">Image Preview & Data</h2>
+
+                            <div class="row g-4">
+
+                                <!-- Preview Section -->
+                                <div class="col-lg-7">
+                                    <div class="card p-3 h-100">
+                                        <h5 class="card-title">Preview</h5>
+                                        <object id="svgViewer" type="image/svg+xml"
+                                            style="width: 100%; height: 300px;"></object>
+
+                                        <button class="btn btn-success mt-3" id="saveBtn">
+                                            <i class="bi bi-save"></i> Train
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Data Section -->
+                                <div class="col-lg-5">
+                                    <div class="card p-3 h-100">
+                                        <h5 class="card-title">Associated Data</h5>
+
+                                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                            <table class="table table-sm table-bordered table-hover mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Key</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="dataTable">
+                                                    <!-- Dynamic rows -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                <div class="h-100 p-5 text-bg-dark rounded-3" id="imageList">
+                                    <h2>Change the background</h2>
+                                    <p>Swap the background-color utility and add a <code>.text-*</code> color utility to
+                                        mix up the jumbotron look. Then, mix and match with additional component themes
+                                        and more.</p>
+                                    <button class="btn btn-outline-light" type="button">Example button</button>
+                                </div>
+                            </div>
+
+                                <!-- Slideshow Controls (full width) -->
+                                <div class="col-12 mt-3">
+                                    <div class="btn-group" role="group" aria-label="Slideshow Controls">
+                                        <button class="btn btn-outline-secondary" id="prevBtn" title="Previous"><i
+                                                class="bi bi-skip-backward-fill"></i></button>
+                                        <button class="btn btn-success" id="playBtn" title="Play"><i
+                                                class="bi bi-play-fill"></i></button>
+                                        <button class="btn btn-danger" id="pauseBtn" title="Pause"><i
+                                                class="bi bi-pause-fill"></i></button>
+                                        <button class="btn btn-outline-secondary" id="nextBtn" title="Next"><i
+                                                class="bi bi-skip-forward-fill"></i></button>
+
+                                        <div class="dropdown ms-3">
+                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                                id="speedDropdown" data-coreui-toggle="dropdown" aria-expanded="false">
+                                                Speed
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="speedDropdown">
+                                                <li><a class="dropdown-item" href="#" data-speed="1000">1s</a></li>
+                                                <li><a class="dropdown-item" href="#" data-speed="3000">3s</a></li>
+                                                <li><a class="dropdown-item" href="#" data-speed="5000">5s</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CoreUI Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.0.0/dist/js/coreui.bundle.min.js"></script>
+    <script>
+        // Sidebar content switching
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const contents = document.querySelectorAll('.content-section');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Remove active from all
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // Hide all content sections
+                contents.forEach(c => c.classList.add('d-none'));
+
+                // Show the target content
+                const targetId = this.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.classList.remove('d-none');
+                }
+            });
+        });
+
+        // Optional: Toggle sidebar
+        document.querySelector('.sidebar-toggler')?.addEventListener('click', () => {
+            document.querySelector('.sidebar').classList.toggle('d-none');
+        });
+
+        const globalLoader = document.getElementById('globalLoader');
+        const progressBar = document.getElementById('progressBar');
+
+        function showLoader() {
+            globalLoader.style.display = 'flex';
+            updateProgress(0);
+        }
+
+        function hideLoader() {
+            globalLoader.style.display = 'block';
+        }
+
+        function updateProgress(percent) {
+            const clamped = Math.min(100, Math.max(0, percent));
+            progressBar.style.width = clamped + '%';
+            progressBar.setAttribute('aria-valuenow', clamped);
+            progressBar.textContent = clamped + '%';
+        }
+
+    </script>
+
+    <script type="module">
+        class VirtualCardRenderer {
+            constructor(containerId, files, buildCardContent, cardHeight = 270, buffer = 5) {
+                this.container = document.getElementById(containerId);
+                this.viewport = this.container.querySelector('#virtual-viewport');
+                this.spacer = this.container.querySelector('#virtual-spacer');
+                this.files = files; // your file metadata list
+                this.buildCardContent = buildCardContent;
+                this.cardHeight = cardHeight;
+                this.buffer = buffer;
+
+                this.total = files.length;
+                this.cardsInView = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.container.addEventListener('scroll', () => this.renderVisibleCards());
+                this.spacer.style.height = `${this.total * this.cardHeight}px`;
+                this.renderVisibleCards();
+            }
+
+            renderVisibleCards() {
+                const scrollTop = this.container.scrollTop;
+                const containerHeight = this.container.clientHeight;
+
+                const startIndex = Math.max(0, Math.floor(scrollTop / this.cardHeight) - this.buffer);
+                const endIndex = Math.min(
+                    this.total,
+                    Math.ceil((scrollTop + containerHeight) / this.cardHeight) + this.buffer
+                );
+
+                // Clear current viewport
+                this.viewport.innerHTML = '';
+
+                // Render visible cards
+                for (let i = startIndex; i < endIndex; i++) {
+                    const file = this.files[i];
+
+                    const card = document.createElement('div');
+                    card.className = 'ui card';
+                    card.style.position = 'absolute';
+                    card.style.top = `${i * this.cardHeight}px`;
+                    card.dataset.index = i;
+
+                    this.buildCardContent(card, file); // Can be async if needed
+                    this.viewport.appendChild(card);
+                }
+            }
+        }
+
+        class FolderManager {
+            constructor() {
+                this.folderPicker = document.getElementById('folderPicker');
+                this.imageList = document.getElementById('imageList');
+                this.svgViewer = document.getElementById('svgViewer');
+                this.dataViewer = document.getElementById('dataViewer');
+                this.saveBtn = document.getElementById('saveBtn');
+                this.viewToggle = document.getElementById('viewToggle');
+                this.chartView = document.getElementById('chartView');
+                this.imageView = document.getElementById('imageView');
+                this.autoReloadToggle = document.getElementById('autoReloadToggle');
+                this.stackToggle = document.getElementById('stackToggle');
+                this.reloadBtn = document.getElementById('reloadBtn');
+                this.folderName = document.getElementById('dirHandle');
+                this.statsHtml = document.getElementById('stats-container');
+                this.statsHtmlMain = document.getElementById('stats-container-main');
+                this.summaryContainer = document.getElementById('summary-container');
+                this.systemHealthHtmlLabel = document.getElementById('system-health-label');
+                this.sortBtn = document.getElementById('sortByDateBtn');
+                this.searchBar = document.getElementById('seatch');
+                this.progressData = document.getElementById('progressData');
+                this.summaryChartCtx = document.getElementById('summaryChart')?.getContext('2d');
+                this.timelineChartCtx = document.getElementById('timelineChart')?.getContext('2d');
+                this.heartbeatChartCtx = document.getElementById('heartbeatChart').getContext('2d');
+
+                this.playSlideshowBtn = document.getElementById('playSlideshowBtn');
+                this.saved = JSON.parse(localStorage.getItem('savedFilenames') || '[]');
+                this.applyFilterBtn = document.getElementById('applyFilterBtn');
+                this.applyFilterBtnCardGrid = document.getElementById('applyFilterBtnCardGrid');
+                this.startTimeInputCardGrid = document.getElementById('startTimeInputCardGrid');
+                this.endTimeInputCardGrid = document.getElementById('endTimeInputCardGrid');
+                this.startTimeInput = document.getElementById('startTimeInput');
+                this.endTimeInput = document.getElementById('endTimeInput');
+
+                this.select = document.getElementById('preset-select');
+                this.button = document.getElementById('generate-btn');
+                this.qrcodeContainer = document.getElementById('qrcode');
+                this.bottomTitle = document.getElementById('bottom-title');
+
+                this.presets = [
+                    {
+                        en: "Machine Repeatedly Rejecting Parts\nThe system is currently rejecting most or all parts. Please investigate reject logic or sensor alignment.",
+                        es: "Máquina rechazando piezas repetidamente"
+                    },
+                    {
+                        en: "Operator Needs Assistance\nImmediate help required. The operator is unable to proceed due to an issue with the machine or process.",
+                        es: "Operador necesita asistencia"
+                    },
+                    {
+                        en: "Quality Hold, Do Not Operate\nThis machine is under quality review. Do not resume operation until cleared by QA or Engineering.",
+                        es: "Retención por calidad, No operar"
+                    },
+                    {
+                        en: "Engineering Currently Training the Machine\nEngineering team is configuring or learning machine behavior for optimization. Please do not interrupt.",
+                        es: "Ingeniería entrenando la máquina"
+                    },
+                    {
+                        en: "In Testing Phase , Use with Caution\nThe machine is undergoing testing. Results may be inconsistent. Only authorized personnel should operate.",
+                        es: "En fase de prueba , Usar con precaución"
+                    },
+                    {
+                        en: "Machine Offline for Maintenance\nThis machine is temporarily shut down for preventive or corrective maintenance.",
+                        es: "Máquina fuera de línea por mantenimiento"
+                    },
+                    {
+                        en: "Fault in Box Feeder/Loader Detected\nThere is an issue with the material feed or loading mechanism. Check for jams or misfeeds.",
+                        es: "Falla detectada en el alimentador/cargador de cajas"
+                    },
+                    {
+                        en: "Under Investigation by Engineering\nA technical issue has been reported and is being actively investigated by Engineering.",
+                        es: "Bajo investigación por ingeniería"
+                    },
+                    {
+                        en: "Machine in Calibration Mode\nDo not run production , the system is being calibrated for accuracy and alignment.",
+                        es: "Máquina en modo de calibración"
+                    },
+                    {
+                        en: "Material Issue Detected\nIncorrect or incompatible material detected. Verify material specs and replace if needed.",
+                        es: "Problema de material detectado"
+                    },
+                    {
+                        en: "Process Adjustment in Progress\nSettings or parameters are being modified for optimization. Please wait for completion.",
+                        es: "Ajuste de proceso en curso"
+                    },
+                    {
+                        en: "Temporarily Halted Due to Safety Concern\nA potential safety issue has been identified. Await clearance from Safety/Engineering.",
+                        es: "Detenido temporalmente por motivo de seguridad"
+                    },
+                    {
+                        en: "Rebooting , Wait for System Restart\nMachine is currently rebooting. Operation will resume shortly.",
+                        es: "Reiniciando , Esperando reinicio del sistema"
+                    },
+                    {
+                        en: "Waiting for Parts/Consumables\nMachine idle due to lack of materials or required consumables. Supply pending.",
+                        es: "Esperando piezas/consumibles"
+                    }
+                ];
+
+                this.filterString = '';
+                this.search = null;
+                this.dateFilter = 'all';
+                this.selectedDate = null;
+                this.timeSeriesData = [];
+                this.summaryData = {};
+                this.availableFilters = new Set();
+                this.currentFilename = null;
+                this.chartInstance = null;
+                this.timelineChartInstance = null;
+                this.autoReloadInterval = null;
+                this.dirHandle = null;
+                this.searchTheseNames = [];
+                this.progressBar = 0;
+
+                this.slideshowInterval = null;
+                this.slideshowIndex = 0;
+                this.slideshowFiles = [];
+                this.slideshowIndex = 0;
+                this.slideshowTimer = null;
+                this.slideshowSpeed = 3000; // default: 3 seconds
+                this.startTime = null;
+                this.endTime = null;
+
+                this.cachedFiles = []; // will store all parsed files after initial read
+                this.arryInfo = null;
+                this.sortByRecent = false; // default: no sorting
+                this.updateProgress = 0;
+                this.init();
+            }
+
+            init() {
+                this.folderPicker?.addEventListener('click', () => this.selectFolder());
+                this.stackToggle?.addEventListener('change', () => this.renderSummaryChart());
+                this.reloadBtn?.addEventListener('click', () => this.readFolderContents());
+                this.viewToggle?.addEventListener('change', () => this.toggleView());
+                this.autoReloadToggle?.addEventListener('change', () => this.toggleAutoReload());
+                this.saveBtn?.addEventListener('click', () => this.toggleSave());
+                this.cardGridToggle = document.getElementById('cardGridToggle');
+                this.cardGridView = document.getElementById('cardGridView');
+                this.cardGridContainer = document.getElementById('cardGridContainer');
+                this.setupSlideshowControls();
+                this.sortBtn?.addEventListener('click', () => {
+                    this.sortByRecent = !this.sortByRecent;
+                    this.sortBtn.innerHTML = this.sortByRecent ?
+                        `<i class="sort amount down icon"></i>` :
+                        `<i class="sort amount up icon"></i>`;
+                    this.filterAndRenderFiles();
+                });
+                this.cardGridToggle?.addEventListener('change', () => this.toggleCardGrid());
+                this.searchBar?.addEventListener('change', (query) => {
+                    if (!query.value.trim()) {
+                        // Reset the search results when query is empty
+                        this.resetSearchResults?.(); // If you have a custom reset function
+                        return;
+                    }
+
+                    this.search = query.value;
+                    this.filterAndRenderFiles();
+                });
+
+                this.applyFilterBtn.addEventListener('click', () => {
+                    const startTimeStr = this.startTimeInput.value;
+                    const endTimeStr = this.endTimeInput.value;
+
+                    const baseDate = new Date(this.selectedDate); // You already set this elsewhere
+
+                    if (startTimeStr) {
+                        const [h, m] = startTimeStr.split(':');
+                        const start = new Date(baseDate);
+                        start.setHours(+h, +m, 0, 0);
+                        this.startTime = start;
+                    } else {
+                        this.startTime = null;
+                    }
+
+                    if (endTimeStr) {
+                        const [h, m] = endTimeStr.split(':');
+                        const end = new Date(baseDate);
+                        end.setHours(+h, +m, 0, 0);
+                        this.endTime = end;
+                    } else {
+                        this.endTime = null;
+                    }
+
+                    this.renderTimelineChart();
+                    this.renderHeartbeatChart();
+                    this.renderCardGrid();
+                });
+
+                this.applyFilterBtnCardGrid.addEventListener('click', () => {
+                    const startTimeStr = this.startTimeInputCardGrid.value;
+                    const endTimeStr = this.endTimeInputCardGrid.value;
+
+                    const baseDate = new Date(this.selectedDate); // You already set this elsewhere
+
+                    if (startTimeStr) {
+                        const [h, m] = startTimeStr.split(':');
+                        const start = new Date(baseDate);
+                        start.setHours(+h, +m, 0, 0);
+                        this.startTime = start;
+                    } else {
+                        this.startTime = null;
+                    }
+
+                    if (endTimeStr) {
+                        const [h, m] = endTimeStr.split(':');
+                        const end = new Date(baseDate);
+                        end.setHours(+h, +m, 0, 0);
+                        this.endTime = end;
+                    } else {
+                        this.endTime = null;
+                    }
+
+                    this.renderTimelineChart();
+                    this.renderCardGrid();
+                });
+
+                this.setupDateDropdown();
+                this.setupCalendar();
+                this.showLoader();
+                this.renderStats();
+                this.getHealthIndicator();
+                // this.qrMaker();
+
+                setTimeout(() => this.hideLoader(), 3000);
+            }
+
+
+            qrMaker() {
+                this.presets.forEach((preset, index) => {
+                    const option = document.createElement('option');
+                    const titleText = preset.en.split('\n')[0];
+                    option.value = index;
+                    option.textContent = titleText;
+                    option.setAttribute('data-fulltext', preset.en);
+                    option.title = `${titleText} / ${preset.es}`;
+                    this.select.appendChild(option);
+                });
+
+                this.button.addEventListener('click', () => {
+                    const selectedOption = this.select.options[this.select.selectedIndex];
+                    if (!selectedOption || !selectedOption.value) {
+                        alert('Please select a preset message');
+                        return;
+                    }
+
+                    const fullText = selectedOption.getAttribute('data-fulltext');
+                    const titleText = fullText.split('\n')[0] + " / " + this.presets.find(item => fullText.split('\n')[0])?.es;
+
+                    // Clear previous QR
+                    this.qrcodeContainer.innerHTML = '';
+
+                    // Generate QR code
+                    new QRCode(this.qrcodeContainer, {
+                        text: fullText,
+                        width: 200,
+                        height: 200,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+
+                    // Show title at the bottom
+                    this.bottomTitle.textContent = titleText;
+
+                    // Trigger print
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                });
+
+            }
+            getHealthIndicator() {
+                const errorRate = this.getErrorRate();
+
+                console.log(errorRate)
+                let healthStatus = '';
+                let color = '';
+                let icon = '';
+
+                if (errorRate === 0) {
+                    healthStatus = 'Excellent';
+                    color = 'green';
+                    icon = 'check circle';
+                } else if (errorRate <= 5) {
+                    healthStatus = 'Good';
+                    color = 'olive';
+                    icon = 'thumbs up';
+                } else if (errorRate <= 15) {
+                    healthStatus = 'Fair';
+                    color = 'yellow';
+                    icon = 'exclamation circle';
+                } else if (errorRate <= 30) {
+                    healthStatus = 'Poor';
+                    color = 'orange';
+                    icon = 'warning sign';
+                } else {
+                    healthStatus = 'Critical';
+                    color = 'red';
+                    icon = 'times circle';
+                }
+
+                this.systemHealthHtmlLabel.innerHTML = `
+  <span class="badge bg-${color}">
+    <i class="cil-${icon} me-1"></i>
+    Health: ${healthStatus} (${errorRate.toFixed(2)}%)
+  </span>
+`
+                    ;
+            }
+
+            getRecentActivity(days = 7) {
+                const cutoff = new Date();
+                cutoff.setDate(cutoff.getDate() - days);
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+                return filteredItems.filter(item => new Date(item.date) >= cutoff);
+            }
+
+            getErrorRate() {
+                let totalFails = 0, totalPasses = 0;
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+                filteredItems.forEach(item => {
+
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Fail=")) totalFails += parseInt(label.split("=")[1]);
+                        if (label.startsWith("Job.Pass=")) totalPasses += parseInt(label.split("=")[1]);
+                    });
+                });
+
+                const total = totalFails + totalPasses;
+                return total === 0 ? 0 : (totalFails / total) * 100;
+            }
+
+            getMostCommonPredictedClass() {
+                const classCounts = {};
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+                filteredItems.forEach(item => {
+                    item.labels.forEach(label => {
+                        if (label.includes("PredictedClass=")) {
+                            const cls = label.split("=")[1];
+                            classCounts[cls] = (classCounts[cls] || 0) + 1;
+                        }
+                    });
+                });
+
+                const sorted = Object.entries(classCounts).sort((a, b) => b[1] - a[1]);
+                return sorted[0] || null;
+            }
+
+            getTopGroupKeys(n = 5) {
+                const groupMap = {};
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    groupMap[item.groupKey] = (groupMap[item.groupKey] || 0) + 1;
+                });
+
+                return Object.entries(groupMap)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, n)
+                    .map(([groupKey, count]) => ({ groupKey, count }));
+            }
+
+            getTrendByDay() {
+                const trend = {};
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    const dateKey = new Date(item.date).toISOString().split('T')[0];
+                    trend[dateKey] = (trend[dateKey] || 0) + 1;
+                });
+
+                return trend;
+            }
+
+            renderSummary() {
+                const recent = this.getRecentActivity(7).length;
+                const errRate = this.getErrorRate().toFixed(2);
+                const commonClass = this.getMostCommonPredictedClass()?.[0] || "N/A";
+
+                this.summaryContainer.innerHTML = `
+  <div class="card bg-dark text-white p-3">
+    <h4 class="card-title">Summary</h4>
+    <p><strong>Recent Activity (7d):</strong> ${recent} items</p>
+    <p><strong>Error Rate:</strong> ${errRate}%</p>
+    <p><strong>Top Predicted Class:</strong> ${commonClass}</p>
+  </div>
+`
+                    ;
+            }
+
+            async backgroundReloadCache() {
+                if (!this.dirHandle) return;
+                console.log('[AutoReload] Cache started at', new Date().toLocaleTimeString());
+
+                const now = new Date();
+                const showTrained = document.getElementById('showTrainedToggle')?.checked;
+
+                const newFileHandles = [];
+                for await (const entry of this.dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.svg')) {
+                        newFileHandles.push(entry);
+                    }
+                }
+                console.log('[AutoReload] Get Cache completed at', new Date().toLocaleTimeString());
+
+                const newFileNames = new Set(newFileHandles.map(f => f.name));
+                const existingFileNames = new Set(this.cachedFiles.map(f => f.name));
+
+                const addedFiles = [...newFileHandles].filter(f => !existingFileNames.has(f.name));
+                const removedFiles = [...this.cachedFiles].filter(f => !newFileNames.has(f.name));
+
+                let updated = false;
+
+                // Process new files
+                for (const entry of addedFiles) {
+                    const fileObj = await this.processSvgFile(entry.name, {}, now, showTrained);
+                    if (fileObj) {
+                        this.cachedFiles.push(fileObj);
+                        updated = true;
+                    }
+                }
+                console.log('[AutoReload] Process Cache completed at', new Date().toLocaleTimeString());
+
+                // Remove deleted files
+                if (removedFiles.length) {
+                    this.cachedFiles = this.cachedFiles.filter(f => newFileNames.has(f.name));
+                    updated = true;
+                    console.log('[AutoReload] Cache not updated at', new Date().toLocaleTimeString());
+
+                }
+
+                if (updated) {
+                    this.filterAndRenderFiles();
+                    console.log('[AutoReload] Cache updated at', new Date().toLocaleTimeString());
+                }
+            }
+
+            async selectFolder() {
+                try {
+                    this.dirHandle = await window.showDirectoryPicker();
+                    await this.readFolderContents();
+                    this.folderName.innerHTML = `Folder:${this.dirHandle.name}` || 'Folder';
+
+                } catch (e) {
+                    console.error("Folder selection cancelled or failed:", e);
+                }
+            }
+
+            startSlideshow() {
+                if (this.slideshowInterval) {
+                    clearInterval(this.slideshowInterval);
+                    this.slideshowInterval = null;
+                    document.getElementById('playSlideshowBtn').textContent = '▶️ Play Slideshow';
+                    return;
+                }
+
+                this.slideshowFiles = this.cachedFiles.filter(file => {
+                    return this.passesDateFilter(file.date) &&
+                        (!this.filterString || file.labels.includes(this.filterString)) &&
+                        (document.getElementById('showTrainedToggle')?.checked || !this.saved.includes(file.name));
+                });
+
+                if (this.slideshowFiles.length === 0) {
+                    alert('No files to show in slideshow.');
+                    return;
+                }
+
+                this.slideshowIndex = 0;
+                document.getElementById('playSlideshowBtn').textContent = '⏸️ Stop Slideshow';
+
+                this.slideshowInterval = setInterval(() => {
+                    const file = this.slideshowFiles[this.slideshowIndex];
+                    this.loadImage(file.name, file.content);
+
+                    this.slideshowIndex = (this.slideshowIndex + 1) % this.slideshowFiles.length;
+                }, 3000); // Change image every 3 seconds
+            }
+
+            setupSlideshowControls() {
+                document.getElementById('playBtn').onclick = () => this.startSlideshow();
+                document.getElementById('pauseBtn').onclick = () => this.stopSlideshow();
+                document.getElementById('nextBtn').onclick = () => this.nextSlide();
+                document.getElementById('prevBtn').onclick = () => this.prevSlide();
+
+                document.querySelectorAll('#slideshowControls .item[data-speed]').forEach(item => {
+                    item.onclick = () => {
+                        this.slideshowSpeed = parseInt(item.getAttribute('data-speed'));
+                        if (this.slideshowTimer) {
+                            this.stopSlideshow();
+                            this.startSlideshow(); // restart with new speed
+                        }
+                    };
+                });
+            }
+
+            startSlideshow() {
+                if (!this.cachedFiles.length) return;
+                this.stopSlideshow();
+                this.slideshowTimer = setInterval(() => this.nextSlide(), this.slideshowSpeed);
+            }
+
+            stopSlideshow() {
+                if (this.slideshowTimer) {
+                    clearInterval(this.slideshowTimer);
+                    this.slideshowTimer = null;
+                }
+            }
+
+            nextSlide() {
+                if (!this.cachedFiles.length) return;
+                this.slideshowIndex = (this.slideshowIndex + 1) % this.cachedFiles.length;
+                const file = this.cachedFiles[this.slideshowIndex];
+                this.loadImage(file.name, file.content);
+            }
+
+            prevSlide() {
+                if (!this.cachedFiles.length) return;
+                this.slideshowIndex = (this.slideshowIndex - 1 + this.cachedFiles.length) % this.cachedFiles.length;
+                const file = this.cachedFiles[this.slideshowIndex];
+                this.loadImage(file.name, file.content);
+            }
+
+            async buildCardContent(card, file) {
+                const imageDiv = await this.loadImageObs(file);
+
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'content';
+
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'header';
+                headerDiv.textContent = file.name;
+
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'meta';
+
+                const svgHandle = await this.dirHandle.getFileHandle(file.name);
+                const svgFile = await svgHandle.getFile();
+                const date = new Date(svgFile.lastModified);
+
+                const dateFormatted = date.toLocaleDateString([], {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+                const timeFormatted = date.toLocaleTimeString([], {
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+                });
+                metaDiv.textContent = `📅 ${dateFormatted} ${timeFormatted}`;
+
+                const descDiv = document.createElement('div');
+                descDiv.className = 'description';
+
+                const table = document.createElement('table');
+                table.className = 'ui collapsing fluid very basic table stackable';
+
+                const tbody = document.createElement('tbody');
+                file.content.split(',').forEach(entry => {
+                    const [key, value] = entry.split(':');
+                    if (key && value) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${key.trim()}</td><td>${value.trim()}</td>`;
+                        tbody.appendChild(row);
+                    }
+                });
+
+                table.appendChild(tbody);
+                descDiv.appendChild(table);
+
+                contentDiv.appendChild(headerDiv);
+                contentDiv.appendChild(metaDiv);
+                contentDiv.appendChild(descDiv);
+
+                card.innerHTML = '';
+                card.appendChild(imageDiv);
+                card.appendChild(contentDiv);
+            }
+
+            async runBatched(tasks, batchSize = 9) {
+                let index = 0;
+                while (index < tasks.length) {
+                    const batch = tasks.slice(index, index + batchSize);
+                    await Promise.allSettled(batch.map(task => task()));
+                    index += batchSize;
+                }
+            }
+
+            startVirtualScroll() {
+                const files = this.cachedFiles;
+                const containerId = 'virtual-container';
+
+                this.virtualRenderer = new VirtualCardRenderer(
+                    containerId,
+                    files,
+                    async (card, file) => {
+                        // This replaces your old IntersectionObserver callback
+                        const imageDiv = await this.loadImageObs(file);
+
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'content';
+
+                        const headerDiv = document.createElement('div');
+                        headerDiv.className = 'header';
+                        headerDiv.textContent = file.name;
+
+                        const metaDiv = document.createElement('div');
+                        metaDiv.className = 'meta';
+
+                        const svgHandle = await this.dirHandle.getFileHandle(file.name);
+                        const svgFile = await svgHandle.getFile();
+                        const date = new Date(svgFile.lastModified);
+
+                        const dateFormatted = date.toLocaleDateString([], {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                        });
+                        const timeFormatted = date.toLocaleTimeString([], {
+                            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+                        });
+
+                        metaDiv.textContent = `📅 ${dateFormatted} ${timeFormatted}`;
+
+                        const descDiv = document.createElement('div');
+                        descDiv.className = 'description';
+
+                        const table = document.createElement('table');
+                        table.className = 'ui collapsing fluid very basic table stackable';
+
+                        const tbody = document.createElement('tbody');
+                        file.content.split(',').forEach(entry => {
+                            const [key, value] = entry.split(':');
+                            if (key && value) {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `<td>${key.trim()}</td><td>${value.trim()}</td>`;
+                                tbody.appendChild(row);
+                            }
+                        });
+
+                        table.appendChild(tbody);
+                        descDiv.appendChild(table);
+
+                        contentDiv.appendChild(headerDiv);
+                        contentDiv.appendChild(metaDiv);
+                        contentDiv.appendChild(descDiv);
+
+                        card.appendChild(imageDiv);
+                        card.appendChild(contentDiv);
+                    }
+                );
+            }
+
+            observeLazyCards() {
+                const observer = new IntersectionObserver(async (entries, obs) => {
+                    const visibleTasks = entries
+                        .filter(entry => entry.isIntersecting)
+                        .map(entry => async () => {
+                            const card = entry.target;
+                            const index = parseInt(card.dataset.index);
+                            const file = this.cachedFiles[index];
+
+                            if (!file || card.dataset.loaded) return;
+
+                            card.dataset.loaded = 'true';
+
+                            try {
+                                await this.buildCardContent(card, file);
+                                obs.unobserve(card);
+                            } catch (err) {
+                                console.warn(`Failed to build content for card ${file?.name}:`, err);
+                            }
+                        });
+
+                    await this.runBatched(visibleTasks, 5); // Load 5 cards at a time
+                }, {
+                    root: null,
+                    rootMargin: '200px',
+                    threshold: 0.1
+                });
+
+                this.cardGridContainer.querySelectorAll('.ui.card').forEach(card => {
+                    if (!card.dataset.loaded) {
+                        observer.observe(card);
+                    }
+                });
+            }
+
+            async generateSvgBlobFromFileName(filename) {
+                try {
+                    const svgHandle = await this.dirHandle.getFileHandle(filename);
+                    const svgFile = await svgHandle.getFile();
+                    let svgText = await svgFile.text();
+
+                    // Optional: handle BMP embedding
+                    const bmpMatch = svgText.match(/xlink:href=['"]([^'"]+\.bmp)['"]/i);
+                    if (bmpMatch && bmpMatch[1]) {
+                        try {
+                            const bmpHandle = await this.dirHandle.getFileHandle(bmpMatch[1]);
+                            const bmpFile = await bmpHandle.getFile();
+                            const bmpBuffer = await bmpFile.arrayBuffer();
+                            const bmpBase64 = this.arrayBufferToBase64(bmpBuffer);
+                            const dataUri = `data:image/bmp;base64,${bmpBase64}`;
+                            svgText = svgText.replace(bmpMatch[0], `xlink:href="${dataUri}"`);
+                        } catch (err) {
+                            console.warn(`⚠️ BMP not found: ${bmpMatch[1]}`, err);
+                        }
+                    }
+
+                    return new Blob([svgText], { type: 'image/svg+xml' });
+                } catch (e) {
+                    console.error('Error generating SVG blob:', e);
+                    return null;
+                }
+            }
+
+            async showPreview(filename, event) {
+                this.hidePreview(); // always clear previous
+
+                this.previewHovering = true;
+
+                // Delay slightly to avoid flicker on fast moves
+                this.previewDelay = setTimeout(async () => {
+                    if (!this.previewHovering) return; // if mouse already left
+
+                    const blob = await this.generateSvgBlobFromFileName(filename);
+                    if (!blob) return;
+
+                    const preview = document.createElement('div');
+                    preview.className = 'image-preview-popup';
+                    preview.style.position = 'fixed';
+                    preview.style.zIndex = 9999;
+                    preview.style.border = '1px solid #ccc';
+                    preview.style.background = '#fff';
+                    preview.style.padding = '5px';
+                    preview.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+                    preview.style.maxWidth = '80vw';
+                    preview.style.maxHeight = '80vh';
+                    preview.style.pointerEvents = 'none';
+
+                    const object = document.createElement('object');
+                    object.type = 'image/svg+xml';
+                    object.data = URL.createObjectURL(blob);
+                    object.style.width = '500px';
+                    object.style.height = 'auto';
+                    preview.appendChild(object);
+
+                    document.body.appendChild(preview);
+                    this.previewElement = preview;
+
+                    // Position
+                    preview.style.left = `${event.clientX + 15}px`;
+                    preview.style.top = `${event.clientY + 15}px`;
+
+                    // Hide after 30 sec
+                    this.previewTimeout = setTimeout(() => {
+                        this.hidePreview();
+                    }, 30000);
+                }, 200); // slight delay
+            }
+
+            hidePreview() {
+                if (this.previewTimeout) {
+                    clearTimeout(this.previewTimeout);
+                    this.previewTimeout = null;
+                }
+                if (this.previewElement) {
+                    this.previewElement.remove();
+                    this.previewElement = null;
+                }
+            }
+
+            async renderCardGrid() {
+                this.cardGridContainer.innerHTML = '';
+                this.cardGridContainer.classList.add('ui', 'three', 'stackable', 'cards');
+
+                const filteredFiles = this.getFilteredFiles().filter(item => {
+                    return this.isWithinTimeWindow(item.date);
+                });
+
+                filteredFiles.forEach((file, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'ui card';
+                    card.dataset.index = this.cachedFiles.indexOf(file); // Keep original index
+
+                    // Placeholder content
+                    card.innerHTML = `
+            <div class="image" style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f9f9f9;">
+                <div class="ui active inline loader"></div>
+            </div>
+            <div class="content"><p>Loading...</p></div>
+        `;
+
+                    this.cardGridContainer.appendChild(card);
+                });
+
+                this.observeLazyCards();
+                //this.startVirtualScroll();
+            }
+
+            matchesFilters(item) {
+                const searchTerm = this.search?.toLowerCase();
+
+                // Text search
+                const matchesSearch = !this.search || (
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.labels.some(label => label.toLowerCase().includes(searchTerm))
+                );
+
+                // Date filter
+                const matchesDate = this.passesDateFilter(item.date);
+
+                // Label filter
+                const matchesLabel = !this.filterString || item.labels.includes(this.filterString);
+
+                return matchesSearch && matchesDate && matchesLabel;
+            }
+
+            matchesTimelineFilter(item) {
+                const searchTerm = this.search?.toLowerCase();
+
+                // Text search
+                const matchesSearch = !this.search || (
+                    item.file.toLowerCase().includes(searchTerm) ||
+                    item.labels.some(label => label.toLowerCase().includes(searchTerm))
+                );
+
+                // Label filter
+                const matchesLabel = !this.filterString || item.labels.includes(this.filterString);
+
+                return matchesSearch && matchesLabel;
+            }
+
+            renderStatsAMain() {
+                let totalPass = 0;
+                let totalFail = 0;
+                const predictedClassCounts = {};
+
+                // Filtered items using reusable filter method
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Pass=")) {
+                            totalPass += parseInt(label.split("=")[1]);
+                        } else if (label.startsWith("Job.Fail=")) {
+                            totalFail += parseInt(label.split("=")[1]);
+                        } else if (label.includes("PredictedClass=")) {
+                            const predClass = label.split("=")[1];
+                            predictedClassCounts[predClass] = (predictedClassCounts[predClass] || 0) + 1;
+                        }
+                    });
+                });
+
+                const totalItems = totalPass + totalFail;
+
+
+
+
+
+
+                const statsHtml = `
+               <div class="container">
+  <div class="row text-center mb-4">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="h4 mb-2">${totalItems}</div>
+          <div class="text-medium-emphasis">Total Items</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="h4 mb-2">${totalFail}</div>
+          <div class="text-medium-emphasis">Total Fails</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="h4 mb-2">${totalPass}</div>
+          <div class="text-medium-emphasis">Total Passes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-secondary mb-4">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Predicted Classes</h5>
+    </div>
+    <div class="card-body">
+      <div class="row row-cols-1 row-cols-md-3 g-3">
+        ${Object.entries(predictedClassCounts).map(([key, val]) => `
+          <div class="col">
+            <div class="card text-center">
+              <div class="card-body">
+                <div class="fs-4 fw-bold">${val}</div>
+                <div class="text-medium-emphasis">Predicted: ${key}</div>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  </div>
+</div>
+
+  `;
+
+                this.statsHtmlMain.innerHTML = statsHtml;
+            }
+
+            checkAlerts(thresholdPercent = 5) {
+                const errorRates = this.getErrorRateTrend();
+                return Object.entries(errorRates)
+                    .filter(([day, rate]) => rate > thresholdPercent)
+                    .map(([day, rate]) => ({ day, rate }));
+            }
+
+            getPredictedClassDistribution() {
+                const classCounts = {};
+                // Filter items first
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    item.labels.forEach(label => {
+                        if (label.includes("PredictedClass=")) {
+                            const predClass = label.split("=")[1];
+                            classCounts[predClass] = (classCounts[predClass] || 0) + 1;
+                        }
+                    });
+                });
+
+                return classCounts;
+            }
+
+            getPassFailByGroup() {
+                const groupStats = {};
+                // Filter items first
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    const group = item.groupKey;
+                    if (!groupStats[group]) groupStats[group] = { pass: 0, fail: 0 };
+
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Pass=")) groupStats[group].pass += parseInt(label.split("=")[1]);
+                        if (label.startsWith("Job.Fail=")) groupStats[group].fail += parseInt(label.split("=")[1]);
+                    });
+                });
+
+                return groupStats;
+            }
+
+            getErrorRateTrend() {
+                // returns an object: { '2025-06-04': 5, '2025-06-05': 2, ... }
+                const trend = {};
+                // Filter items first
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    const day = new Date(item.date).toISOString().split('T')[0];
+                    if (!trend[day]) trend[day] = { pass: 0, fail: 0 };
+
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Pass=")) trend[day].pass += parseInt(label.split("=")[1]);
+                        if (label.startsWith("Job.Fail=")) trend[day].fail += parseInt(label.split("=")[1]);
+                    });
+                });
+
+                // Calculate error rate percentage per day
+                const errorRateTrend = {};
+                for (const day in trend) {
+                    const { pass, fail } = trend[day];
+                    const total = pass + fail;
+                    errorRateTrend[day] = total > 0 ? (fail / total) * 100 : 0;
+                }
+                return errorRateTrend;
+            }
+
+            computeStatsData() {
+                let totalPass = 0;
+                let totalFail = 0;
+                const predictedClassCounts = {};
+
+                // Filter items
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Pass=")) {
+                            totalPass += parseInt(label.split("=")[1]);
+                        } else if (label.startsWith("Job.Fail=")) {
+                            totalFail += parseInt(label.split("=")[1]);
+                        } else if (label.includes("PredictedClass=")) {
+                            const predClass = label.split("=")[1];
+                            predictedClassCounts[predClass] = (predictedClassCounts[predClass] || 0) + 1;
+                        }
+                    });
+                });
+
+                const totalItems = totalPass + totalFail;
+
+                // Additional insights
+                const errorRateTrend = this.getErrorRateTrend();
+                const alerts = this.checkAlerts(5);
+                const passFailByGroup = this.getPassFailByGroup();
+
+                return {
+                    totalItems,
+                    totalPass,
+                    totalFail,
+                    predictedClassCounts,
+                    errorRateTrend,
+                    alerts,
+                    passFailByGroup
+                };
+            }
+
+            renderStats() {
+                let totalPass = 0;
+                let totalFail = 0;
+                const predictedClassCounts = {};
+
+                // Filter items first
+                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+
+                filteredItems.forEach(item => {
+
+                    item.labels.forEach(label => {
+                        if (label.startsWith("Job.Pass=")) {
+                            totalPass += parseInt(label.split("=")[1]);
+                        } else if (label.startsWith("Job.Fail=")) {
+                            totalFail += parseInt(label.split("=")[1]);
+                        } else if (label.includes("PredictedClass=")) {
+                            const predClass = label.split("=")[1];
+                            predictedClassCounts[predClass] = (predictedClassCounts[predClass] || 0) + 1;
+                        }
+                    });
+                });
+
+                const totalItems = totalPass + totalFail;
+
+                // Get more insights
+                const errorRateTrend = this.getErrorRateTrend();
+                const alerts = this.checkAlerts(5); // Alert if error rate > 5%
+                const passFailByGroup = this.getPassFailByGroup();
+
+                // Format the error rate trend as a simple list or stats
+                const errorRateHtml = Object.entries(errorRateTrend).map(([day, rate]) => `
+    <div class="column">
+        <div class="ui segment center aligned">
+                <div class="ui mini statistic">
+      <div class="value">${rate.toFixed(2)}%</div>
+      <div class="label">Errors on ${day}</div>
+    </div>
+    </div>
+    </div>
+  `).join("");
+
+                // Format alerts (if any)
+                const alertsHtml = alerts.length > 0 ? `
+    <div class="ui red message">
+      <strong>Alerts:</strong> High error rates detected on days:
+      ${alerts.map(a => a.day).join(", ")}
+    </div>
+  ` : "";
+
+                // Format pass/fail by groupKey summary (top 3)
+                const groupsHtml = Object.entries(passFailByGroup)
+                    .slice(0, 5)
+                    .map(([group, counts]) => {
+                        const totalGroup = counts.pass + counts.fail;
+                        const failRate = totalGroup === 0 ? 0 : (counts.fail / totalGroup) * 100;
+                        return `
+                        <div class="column">
+        <div class="ui segment center aligned">
+      <div class="ui mini statistic">
+        <div class="value">${failRate.toFixed(1)}%</div>
+        <div class="label"> Part #:${group}</div>
+      </div>
+      </div>
+      </div>`;
+                    }).join("");
+
+                // Predicted classes summary (top 3)
+                const predictedHtml = Object.entries(predictedClassCounts)
+                    .slice(0, 5)
+                    .map(([cls, count]) => `
+                    <div class="column">
+        <div class="ui segment center aligned">
+      <div class="ui mini statistic">
+        <div class="value">${count}</div>
+        <div class="label">Predicted: ${cls}</div>
+      </div>
+      </div>
+      </div>
+    `).join("");
+
+                // Compose full HTML summary
+                const statsHtml = `<div>
+                    <div class="ui divider hidden "></div>
+  <div class=" ui segment fluid secondary">
+    <h3 class="ui dividing  header"> Top 5 Predicted Classes</h3>
+        <div class="ui three column internally celled grid">
+            ${predictedHtml}
+            </div>
+             </div>
+
+<div class=" ui segment fluid">
+    <h3 class="ui dividing header">Error Rate Trend </h3>
+        <div class="ui three column internally celled grid">
+            ${errorRateHtml}
+            </div>
+            </div>
+
+  <div class=" ui segment fluid tertiary">         
+    <h3 class="ui dividing  header">Top 5 Fail Rate by Group</h3>
+        <div class="ui three column internally celled grid">
+            ${groupsHtml}
+            ${alertsHtml}
+            </div>
+                        </div>
+                        </div>`;
+
+                this.statsHtml.innerHTML = statsHtml;
+            }
+
+            sortFilesByDate(files, recentFirst = true) {
+                return files.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return recentFirst ? dateB - dateA : dateA - dateB;
+                });
+            }
+
+            async filterAndRenderFiles() {
+                const groupedFiles = {};
+                this.summaryData = {};
+                this.availableFilters.clear();
+
+                for (const file of this.cachedFiles) {
+
+                    // If there is a search query, filter the files based on it
+                    if (this.search && !file.name.toLowerCase().includes(this.search.toLowerCase()) &&
+                        !file.labels.some(label => label.toLowerCase().includes(this.search.toLowerCase()))) {
+                        continue;  // Skip files that don't match the search
+                    }
+
+                    // Date filter check
+                    if (!this.passesDateFilter(file.date)) continue;
+
+                    // Other filters
+                    if (this.filterString && !file.labels.includes(this.filterString)) continue;
+
+                    // Trained toggle filter
+                    if (!document.getElementById('showTrainedToggle')?.checked && this.saved.includes(file.name)) continue;
+
+                    // Group the files by groupKey
+                    if (!groupedFiles[file.groupKey]) groupedFiles[file.groupKey] = [];
+                    groupedFiles[file.groupKey].push(file);
+
+                    // Track labels for summary and available filters
+                    for (const label of file.labels) {
+                        this.summaryData[label] = (this.summaryData[label] || 0) + 1;
+                        this.availableFilters.add(label);
+                    }
+                }
+
+                // Sort files within each group by date (recent to oldest) if sorting is enabled
+                if (this.sortByRecent) {
+                    for (const key in groupedFiles) {
+                        groupedFiles[key] = this.sortFilesByDate(groupedFiles[key], true);
+                    }
+                }
+
+                // Render the filtered files and charts
+                this.renderGroupedFiles(groupedFiles);
+                this.renderSummaryChart();
+                this.renderFilterDropdown();
+                this.renderTimelineChart();
+                this.renderHeartbeatChart();
+                this.renderStats();
+                this.renderStatsAMain();
+                this.renderSummary();
+                this.getHealthIndicator();
+                await this.renderCardGrid();
+
+            }
+
+            toggleView() {
+                if (this.viewToggle.checked) {
+                    this.chartView.style.display = 'block';
+                    this.imageView.style.display = 'none';
+                } else {
+                    this.chartView.style.display = 'none';
+                    this.imageView.style.display = 'flex';
+                }
+            }
+
+            toggleAutoReload() {
+                if (!this.autoReloadInterval) {
+                    this.autoReloadInterval = setInterval(() => {
+                        if (this.dirHandle) {
+                            this.backgroundReloadCache();
+                        }
+                    }, 30000);
+                } else {
+                    clearInterval(this.autoReloadInterval);
+                    this.autoReloadInterval = null;
+                    console.log("Auto-reload stopped.");
+                }
+            }
+
+            setupDateDropdown() {
+                /*  $('#dateFilterDropdown').dropdown({
+                     onChange: (value) => {
+                         this.dateFilter = value;
+                         this.filterAndRenderFiles();
+                     }
+                 }); */
+                flatpickr("#datePicker", {
+                    onChange: function (selectedDates, dateStr, instance) {
+                        this.selectedDate = dateStr ? new Date(selectedDates).setHours(0, 0, 0, 0) : null;
+                        this.filterAndRenderFiles();
+                    }
+                });
+            }
+
+            setupCalendar() {
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    flatpickr("#datePicker", {
+                        dateFormat: "Y-m-d", // Similar to your formatter
+                        defaultDate: 'today',
+                        onChange: async (selectedDates, dateStr, instance) => {
+                            this.selectedDate = dateStr ? new Date(selectedDates).setHours(0, 0, 0, 0) : null;
+                            this.filterAndRenderFiles();
+                        }
+                    })
+                });
+
+            }
+
+            showLoader() {
+                document.getElementById('globalLoader')?.style.setProperty('display', 'block');
+            }
+
+            hideLoader() {
+                document.getElementById('globalLoader')?.style.setProperty('display', 'none');
+            }
+
+            async readFolderContents() {
+                this.showLoader();
+                this.timeSeriesData = [];
+                if (!this.dirHandle) return;
+
+                this.imageList.innerHTML = '';
+                this.summaryData = {};
+                this.availableFilters.clear();
+                this.cachedFiles = [];
+
+                const groupedFiles = {};
+                const now = new Date();
+                const showTrained = document.getElementById('showTrainedToggle')?.checked;
+                const fileHandles = [];
+
+                for await (const entry of this.dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.svg')) {
+                        fileHandles.push(entry);
+                    }
+                }
+
+                const concurrency = 100;
+                for (let i = 0; i < fileHandles.length; i += concurrency) {
+                    const batch = fileHandles.slice(i, i + concurrency);
+                    const results = await Promise.all(
+                        batch.map(entry => this.processSvgFile(entry.name, groupedFiles, now, showTrained))
+                    );
+                    this.cachedFiles.push(...results.filter(Boolean));
+
+                    // Optional: show loading progress
+                    this.updateProgress = (Math.min(100, Math.round((i + concurrency) / fileHandles.length * 100)));
+                    //this.progressData.innerText = this.updateProgress;
+
+                    /*    $('#progressBar').progress({
+                           percent: this.updateProgress,
+                           total: `${this.updateProgress}%`
+   
+                       }); */
+                }
+
+                this.renderGroupedFiles(groupedFiles);
+                this.renderSummaryChart();
+                this.renderFilterDropdown();
+                this.renderTimelineChart();
+                this.renderHeartbeatChart();
+
+                this.hideLoader();
+            }
+
+            async processSvgFile(svgName, groupedFiles, now, showTrained) {
+                const txtName = svgName.replace('.svg', '.txt');
+
+                try {
+                    const [svgHandle, txtHandle] = await Promise.all([
+                        this.dirHandle.getFileHandle(svgName),
+                        this.dirHandle.getFileHandle(txtName)
+                    ]);
+
+                    const [svgFile, txtFile] = await Promise.all([
+                        svgHandle.getFile(),
+                        txtHandle.getFile()
+                    ]);
+
+                    const fileDate = new Date(svgFile.lastModified);
+                    if (!this.passesDateFilter(fileDate)) return;
+
+                    const txtContent = await txtFile.text();
+                    const kvPairs = txtContent.split(',').map(e => {
+                        const [k, v] = e.split(':').map(x => x.trim());
+                        return { key: k, value: v };
+                    });
+
+                    // Apply filter only once on parsed data
+                    if (this.filterString && !kvPairs.some(({ key, value }) => `${key}=${value}` === this.filterString)) {
+                        return;
+                    }
+
+                    if (!showTrained && this.saved.includes(svgName)) return;
+
+                    // Avoid duplicate keys
+                    const keySet = new Set();
+                    for (const { key } of kvPairs) {
+                        if (keySet.has(key)) return;
+                        keySet.add(key);
+                    }
+
+                    // Add to grouped files
+                    const parts = svgName.split('_');
+                    const groupKey = parts[0];
+                    const sortVal = parseInt(parts[2].replace('.svg', ''));
+
+                    if (!groupedFiles[groupKey]) groupedFiles[groupKey] = [];
+                    groupedFiles[groupKey].push({ name: svgName, sortValue: sortVal, content: txtContent });
+
+                    // Update summary data and filters
+                    for (const { key, value } of kvPairs) {
+                        if (!key || !value) continue;
+                        const label = `${key}=${value}`;
+                        this.summaryData[label] = (this.summaryData[label] || 0) + 1;
+                        this.availableFilters.add(label);
+                    }
+
+                    // Track for timeline chart
+                    this.timeSeriesData.push({
+                        timestamp: fileDate.toISOString(),
+                        file: svgName,
+                        label: svgName.replace('.svg', ''),
+                        labels: kvPairs.map(({ key, value }) => `${key}=${value}`)
+                    });
+
+                    return {
+                        name: svgName,
+                        groupKey,
+                        sortValue: sortVal,
+                        content: txtContent,
+                        date: fileDate.toISOString(),
+                        labels: kvPairs.map(({ key, value }) => `${key}=${value}`)
+                    };
+
+                } catch (e) {
+                    // Optionally log or handle the error
+                    // console.warn(`Skipping ${svgName}: ${e.message}`);
+                    return null;
+                }
+            }
+
+            passesDateFilter(fileDate) {
+                //const now = new Date();
+                let result = true;
+
+                /*                 if (this.dateFilter === 'today') {
+                                    result = fileDate.toDateString() === now.toDateString();
+                                } else if (this.dateFilter === 'week') {
+                                    const weekAgo = new Date(now);
+                                    weekAgo.setDate(now.getDate() - 7);
+                                    result = fileDate >= weekAgo;
+                                } */
+
+                if (this.selectedDate) {
+                    /*  const fileDateOnly = new Date(fileDate.setHours(0, 0, 0, 0));
+                     result = result && (fileDateOnly.getTime() === this.selectedDate.getTime()); */
+                    const fileDateStr = new Date(fileDate).toISOString().split('T')[0];
+                    const selectedDateStr = new Date(this.selectedDate).toISOString().split('T')[0];
+                    result = result && (fileDateStr === selectedDateStr);
+                }
+
+                return result;
+            }
+
+            renderGroupedFiles(grouped) {
+                const accordion = document.createElement('div');
+                accordion.className = 'accordion';
+                accordion.id = 'groupedFilesAccordion';
+
+                let index = 0;
+
+                for (const groupKey in grouped) {
+                    const files = grouped[groupKey].sort((a, b) => a.sortValue - b.sortValue);
+                    const groupId = `accordionGroup${index}`;
+                    const collapseId = `collapse${index}`;
+
+                    // Accordion Item
+                    const item = document.createElement('div');
+                    item.className = 'accordion-item';
+
+                    // Header
+                    const header = document.createElement('h2');
+                    header.className = 'accordion-header';
+                    header.id = groupId;
+
+                    const button = document.createElement('button');
+                    button.className = 'accordion-button collapsed';
+                    button.type = 'button';
+                    button.setAttribute('data-bs-toggle', 'collapse');
+                    button.setAttribute('data-bs-target', `#${collapseId}`);
+                    button.setAttribute('aria-expanded', 'false');
+                    button.setAttribute('aria-controls', collapseId);
+                    button.innerText = `${groupKey} (${files.length})`;
+
+                    header.appendChild(button);
+
+                    // Collapse body
+                    const collapse = document.createElement('div');
+                    collapse.id = collapseId;
+                    collapse.className = 'accordion-collapse collapse';
+                    collapse.setAttribute('aria-labelledby', groupId);
+                    collapse.setAttribute('data-bs-parent', '#groupedFilesAccordion');
+
+                    const body = document.createElement('div');
+                    body.className = 'accordion-body';
+
+                    // Scrollable horizontal wrap
+                    const scrollWrap = document.createElement('div');
+                    scrollWrap.className = 'd-flex overflow-auto gap-2';
+                    scrollWrap.style.flexWrap = 'nowrap';
+
+                    files.forEach(file => {
+                        const btnWrapper = document.createElement('div');
+
+                        const label = (file.content || '').split(',');
+                        const labelText = (label[0]?.split(':')[1]?.trim() || '') + '/' + (label[1]?.split(':')[1]?.trim() || '');
+
+                        const btn = document.createElement('span');
+                        btn.className = 'badge bg-light text-dark border';
+                        btn.style.cursor = 'pointer';
+                        btn.textContent = file.name;
+
+                        const detail = document.createElement('div');
+                        detail.className = 'small text-muted';
+                        detail.textContent = labelText || 'N/A';
+                        btn.appendChild(document.createElement('br'));
+                        btn.appendChild(detail);
+
+                        btn.onclick = () => this.loadImage(file.name, file.content);
+
+                        if (this.saved.includes(file.name)) {
+                            btn.classList.add('bg-danger', 'text-white');
+                            btn.title = 'Already trained';
+                        }
+
+                        btnWrapper.appendChild(btn);
+                        scrollWrap.appendChild(btnWrapper);
+                    });
+
+                    body.appendChild(scrollWrap);
+                    collapse.appendChild(body);
+
+                    item.appendChild(header);
+                    item.appendChild(collapse);
+
+                    accordion.appendChild(item);
+                    index++;
+                }
+
+                this.imageList.innerHTML = '';
+                this.imageList.appendChild(accordion);
+            }
+
+            async loadImage(svgFilename, txtContent) {
+                this.currentFilename = svgFilename;
+                const dataTable = document.getElementById('dataTable');
+                dataTable.innerHTML = '';
+
+                const svgHandle = await this.dirHandle.getFileHandle(svgFilename);
+                const svgFile = await svgHandle.getFile();
+                const lastModified = new Date(svgFile.lastModified);
+
+                const dateFormatted = lastModified.toLocaleDateString([], {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+                const timeFormatted = lastModified.toLocaleTimeString([], {
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+                });
+
+                document.querySelector('#imageView h4.ui.header').innerHTML =
+                    `Preview : ${svgFilename.split('_')[0]} <div class="sub header">Captured ${dateFormatted} at ${timeFormatted}</div>`;
+
+                txtContent.split(',').forEach(entry => {
+                    const [key, value] = entry.split(':');
+                    if (key && value) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${key.trim()}</td><td>${value.trim()}</td>`;
+                        dataTable.appendChild(row);
+                    }
+                });
+
+                const isSaved = this.saved.includes(svgFilename);
+                this.saveBtn.textContent = isSaved ? 'Untrain' : 'Train';
+                this.saveBtn.classList.toggle('red', isSaved);
+                this.saveBtn.classList.toggle('green', !isSaved);
+
+                const svgText = await svgFile.text();
+                let finalSvg = svgText;
+
+
+                const bmpMatch = finalSvg.match(/xlink:href=['"]([^'"]+\.bmp)['"]/i);
+                if (bmpMatch && bmpMatch[1]) {
+                    try {
+                        const bmpHandle = await this.dirHandle.getFileHandle(bmpMatch[1]);
+                        const bmpFile = await bmpHandle.getFile();
+                        const bmpBuffer = await bmpFile.arrayBuffer();
+                        const bmpBase64 = this.arrayBufferToBase64(bmpBuffer);
+                        const dataUri = `data:image/bmp;base64,${bmpBase64}`;
+                        finalSvg = finalSvg.replace(bmpMatch[0], `xlink:href="${dataUri}"`);
+                    } catch (err) {
+                        console.warn(`⚠️ BMP not found: ${bmpMatch[1]}`, err);
+                    }
+                }
+
+
+                const blob = new Blob([finalSvg], { type: 'image/svg+xml' });
+                const svgUrl = URL.createObjectURL(blob);
+                this.svgViewer.setAttribute('data', svgUrl);
+
+                setTimeout(() => {
+                    this.svgViewer.style.display = 'none';
+                    this.svgViewer.offsetHeight;
+                    this.svgViewer.style.display = 'block';
+                }, 70);
+            }
+
+            async loadImageObs(file) {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image';
+                imageDiv.style = `
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f9f9f9;
+    `;
+
+                let finalSvg = '';
+                try {
+                    const svgHandle = await this.dirHandle.getFileHandle(file.name);
+                    const svgFile = await svgHandle.getFile();
+                    const svgText = await svgFile.text();
+                    finalSvg = svgText;
+
+                    // Embed BMP inside SVG if needed
+                    const bmpMatch = finalSvg.match(/xlink:href=['"]([^'"]+\.bmp)['"]/i);
+                    if (bmpMatch && bmpMatch[1]) {
+                        try {
+                            const bmpHandle = await this.dirHandle.getFileHandle(bmpMatch[1]);
+                            const bmpFile = await bmpHandle.getFile();
+                            const bmpBuffer = await bmpFile.arrayBuffer();
+                            const bmpBase64 = this.arrayBufferToBase64(bmpBuffer);
+                            const dataUri = `data:image/bmp;base64,${bmpBase64}`;
+                            finalSvg = finalSvg.replace(bmpMatch[0], `xlink:href="${dataUri}"`);
+                        } catch (err) {
+                            console.warn(`⚠️ BMP not found: ${bmpMatch[1]}`, err);
+                        }
+                    }
+
+                    const blob = new Blob([finalSvg], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    imageDiv.innerHTML = `<object type="image/svg+xml" data="${url}" style="width: 100%; height: 100%;"></object>`;
+                } catch {
+                    // Fallback if SVG fails
+                    imageDiv.innerHTML = `
+            <div class="ui icon message"><i class="file icon"></i>No image</div>
+        `;
+                }
+
+                return imageDiv;
+            }
+
+            arrayBufferToBase64(buffer) {
+                let binary = '';
+                const bytes = new Uint8Array(buffer);
+                const len = bytes.length;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return btoa(binary);
+            }
+
+            getFilteredFiles() {
+                const showTrained = document.getElementById('showTrainedToggle')?.checked;
+                let data = this.cachedFiles.filter(file => {
+                    if (!this.passesDateFilter(file.date)) return false;
+                    if (this.filterString && !file.labels.includes(this.filterString)) return false;
+                    // If there is a search query, filter the files based on it
+                    if (this.search && !file.name.toLowerCase().includes(this.search.toLowerCase()) &&
+                        !file.labels.some(label => label.toLowerCase().includes(this.search.toLowerCase()))) {
+                        return false;  // Skip files that don't match the search
+                    }
+                    if (!showTrained && this.saved.includes(file.name)) return false;
+                    return true;
+                });
+                if (this.sortByRecent) {
+                    return this.sortFilesByDate(data, true);
+                } else {
+                    return this.sortFilesByDate(data, false);;
+                }
+            }
+
+            toggleSave() {
+                if (!this.currentFilename) return alert('No file selected');
+                const index = this.saved.indexOf(this.currentFilename);
+
+                if (this.saveBtn.textContent === 'Train') {
+                    if (index === -1) {
+                        this.saved.push(this.currentFilename);
+                        localStorage.setItem('savedFilenames', JSON.stringify(this.saved));
+                        alert(`Saved: ${this.currentFilename}`);
+                    }
+                } else {
+                    if (index !== -1) {
+                        this.saved.splice(index, 1);
+                        localStorage.setItem('savedFilenames', JSON.stringify(this.saved));
+                        alert(`Untrained: ${this.currentFilename}`);
+                    }
+                }
+
+                this.filterAndRenderFiles();
+            }
+
+            isWithinTimeWindow(fileDateIn) {
+                const fileDate = new Date(fileDateIn);
+
+                if (this.startTime) {
+                    const start = new Date(this.startTime);
+                    if (fileDate < start) return false;
+                }
+
+                if (this.endTime) {
+                    const end = new Date(this.endTime);
+                    if (fileDate > end) return false;
+                }
+
+                return true;
+            }
+
+            renderTimelineChart() {
+                const ctx = this.timelineChartCtx;
+
+                if (this.timelineChartInstance) {
+                    this.timelineChartInstance.destroy();
+                }
+
+                const filteredData = this.timeSeriesData.filter(entry => {
+                    const fileDate = new Date(entry.timestamp); // Ensure it's a Date
+                    // Match selected date (if provided)
+                    if (this.selectedDate) {
+                        const fileDateOnly = new Date(fileDate);
+                        fileDateOnly.setHours(0, 0, 0, 0);
+                        const selectedOnly = new Date(this.selectedDate);
+                        selectedOnly.setHours(0, 0, 0, 0);
+                        if (fileDateOnly.getTime() !== selectedOnly.getTime()) return false;
+                    }
+
+                    if (!this.isWithinTimeWindow(fileDate)) return false;
+
+                    if (!this.matchesTimelineFilter(entry)) return false;
+
+                    return true;
+                });
+
+                const grouped = {};
+
+                filteredData.forEach((entry) => {
+                    const labelGroup = this.filterString || 'All';
+
+                    if (!grouped[labelGroup]) grouped[labelGroup] = [];
+                    grouped[labelGroup].push({
+                        x: new Date(entry.timestamp).toISOString(), // time on X-axis
+                        y: 1, // constant Y to align all events horizontally
+                        label: entry.file
+                    });
+                });
+
+                const datasets = Object.keys(grouped).map((group, i) => ({
+                    label: group,
+                    data: grouped[group],
+                    pointBackgroundColor: `hsl(${(i * 60) % 360}, 70%, 50%)`,
+                    pointRadius: 5
+                }));
+
+                this.timelineChartInstance = new Chart(ctx, {
+                    type: 'scatter',
+                    data: { datasets },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'minute',
+                                    tooltipFormat: 'PPpp'
+                                },
+                                title: { display: true, text: 'Timestamp' }
+                            },
+                            y: {
+                                display: false // no need for Y-axis ticks if events are aligned
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const point = context.raw;
+                                        const date = new Date(point.x);
+                                        const time = date.toLocaleTimeString();
+                                        const day = date.toLocaleDateString();
+                                        return `${point.label} - ${day} ${time}`;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Filtered Timeline (Time on X-axis)'
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderSummaryChart() {
+                const ctx = this.summaryChartCtx;
+                const isStacked = this.stackToggle?.checked; // ✅ read toggle
+
+                // Step 1: Build nested object: { field: { value: count } }
+                const fieldValueCounts = {};
+
+                Object.keys(this.summaryData).forEach(label => {
+                    const [field, value] = label.split('=');
+                    if (!field || !value) return;
+
+                    if (!fieldValueCounts[field]) {
+                        fieldValueCounts[field] = {};
+                    }
+
+                    fieldValueCounts[field][value] = (fieldValueCounts[field][value] || 0) + this.summaryData[label];
+                });
+
+                const allFields = Object.keys(fieldValueCounts);
+                const allValues = Array.from(
+                    new Set(
+                        Object.values(fieldValueCounts)
+                            .flatMap(obj => Object.keys(obj))
+                    )
+                ).sort();
+
+                const datasets = allValues.map((val, index) => ({
+                    label: val,
+                    data: allFields.map(field => fieldValueCounts[field][val] || 0),
+                    backgroundColor: `hsl(${(index * 60) % 360}, 70%, 60%)`
+                }));
+
+                if (this.chartInstance) {
+                    this.chartInstance.destroy();
+                }
+
+                this.chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: allFields,
+                        datasets
+                    },
+                    options: {
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: isStacked ? 'Stacked Comparison of Field Values' : 'Grouped Comparison of Field Values'
+                            }
+                        },
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: isStacked, // ✅ stack on X axis
+                                title: {
+                                    display: true,
+                                    text: 'Field'
+                                }
+                            },
+                            y: {
+                                stacked: isStacked, // ✅ stack on Y axis
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Count'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderHeartbeatChart() {
+                const ctx = this.heartbeatChartCtx;
+
+                if (this.heartbeatChartInstance) {
+                    this.heartbeatChartInstance.destroy();
+                }
+
+                const filteredData = this.timeSeriesData.filter(entry => {
+                    const fileDate = new Date(entry.timestamp);
+
+                    if (this.selectedDate) {
+                        const fileDateOnly = new Date(fileDate);
+                        fileDateOnly.setHours(0, 0, 0, 0);
+                        const selectedOnly = new Date(this.selectedDate);
+                        selectedOnly.setHours(0, 0, 0, 0);
+                        if (fileDateOnly.getTime() !== selectedOnly.getTime()) return false;
+                    }
+                    if (!this.isWithinTimeWindow(fileDate)) return false;
+                    if (!this.matchesTimelineFilter(entry)) return false;
+
+                    return true;
+                });
+
+                // Group by file prefix
+                const grouped = {};
+                filteredData.forEach(entry => {
+                    const prefix = entry.file.split('_')[0];
+                    if (!grouped[prefix]) grouped[prefix] = [];
+
+                    const isPass = entry.labels.includes("Job.Pass=1") ? 1 : 0;
+
+                    grouped[prefix].push({
+                        x: new Date(entry.timestamp).toISOString(),
+                        y: isPass,
+                        label: entry.file
+                    });
+                });
+
+                // Sort entries in each group by timestamp
+                Object.values(grouped).forEach(group => {
+                    group.sort((a, b) => new Date(a.x) - new Date(b.x));
+                });
+
+                // Convert to Chart.js datasets
+                const datasets = Object.keys(grouped).map((prefix, i) => ({
+                    label: prefix,
+                    data: grouped[prefix],
+                    borderColor: `hsl(${(i * 60) % 360}, 70%, 40%)`,
+                    backgroundColor: `hsla(${(i * 60) % 360}, 70%, 40%, 0.5)`,
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointBackgroundColor: grouped[prefix].map(p => p.y === 1 ? 'green' : 'red'),
+                    fill: true, // Enable stacked area
+                    tension: 0.3,
+                    showLine: true
+                }));
+
+                // Render stacked line chart
+                this.heartbeatChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                stacked: true, // Optional: stack x-axis if needed
+                                time: {
+                                    unit: 'minute',
+                                    tooltipFormat: 'PPpp'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Timestamp'
+                                }
+                            },
+                            y: {
+                                stacked: true, // Enables stacked line chart
+                                min: 0,
+                                max: 1,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: val => val === 1 ? 'Pass' : 'Fail'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Job Result'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const point = context.raw;
+                                        const date = new Date(point.x);
+                                        const time = date.toLocaleTimeString();
+                                        const day = date.toLocaleDateString();
+                                        const result = point.y === 1 ? 'Pass' : 'Fail';
+                                        return `${point.label} - ${result} at ${day} ${time}`;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Job Heartbeat Timeline (Stacked Line by File Prefix)'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderFilterDropdown() {
+                const menu = document.getElementById('filterDropdown');
+                const toggleBtn = document.getElementById('filterDropdownButton');
+
+                // Clear existing items
+                menu.innerHTML = '';
+
+                // Add "All" option
+                const total = Object.values(this.summaryData).reduce((a, b) => a + b, 0);
+                const allItem = document.createElement('li');
+                allItem.innerHTML = `<a class="dropdown-item" href="#" data-value="">All (${total})</a>`;
+                menu.appendChild(allItem);
+
+                // Add individual filters
+                [...this.availableFilters].sort().forEach(filter => {
+                    const count = this.summaryData[filter] || 0;
+                    const label = filter.split('=')[1] || filter;
+                    const item = document.createElement('li');
+                    item.innerHTML = `<a class="dropdown-item" href="#" data-value="${filter}">${label} (${count})</a>`;
+                    menu.appendChild(item);
+                });
+
+                // Attach click handlers
+                menu.querySelectorAll('.dropdown-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const value = item.getAttribute('data-value');
+                        this.filterString = value;
+
+                        // Update button label
+                        toggleBtn.textContent = item.textContent;
+
+                        // Trigger your filtering logic
+                        this.filterAndRenderFiles();
+                    });
+                });
+            }
+
+
+            clearDate() {
+                this.selectedDate = null;
+                $('#specificDateCalendar').calendar('clear');
+                this.filterAndRenderFiles();;
+            }
+        }
+
+        const folderManager = new FolderManager();
+    </script>
+
+</body>
+
+</html>
