@@ -236,6 +236,14 @@
         #summaryChart {
             width: 50%;
         }
+
+        .gauge-container {
+            display: inline-block;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            margin: 0 auto;
+        }
     </style>
 
 </head>
@@ -425,9 +433,8 @@
     </div>
 
     <!-- Main content container with left margin -->
-    <div class="pusher grey" style=" margin-top: 5em; padding: 1em;">
+    <div class="pusher " style=" margin-top: 7em; padding: 1em;">
 
-        <div class="ui divider hidden"></div>
         <!-- Tab 1: Dashboard Stats -->
         <div class="ui grid active tab" data-tab="dashboard-page">
             <!-- Tab 1: Dash View -->
@@ -486,6 +493,8 @@
                                 <div class="column sixteen wide">
                                     <div class="ui " id="groupKey-table-filter"></div>
                                     <div id="summary-container"></div>
+                                    <button class="ui button primary" id="loadMoreBtn">Load More</button>
+
                                 </div>
 
                             </div>
@@ -1320,84 +1329,83 @@
             }
         }
 
-class TimeFilterForm {
-    constructor(containerId, instanceId) {
-        this.container = document.getElementById(containerId);
-        this.instanceId = instanceId || Date.now(); // fallback unique ID
-    }
+        class TimeFilterForm {
+            constructor(containerId, instanceId) {
+                this.container = document.getElementById(containerId);
+                this.instanceId = instanceId || Date.now(); // fallback unique ID
+            }
 
-    createForm() {
-        const formDiv = document.createElement("div");
-        formDiv.className = "ui form";
-        formDiv.style.marginTop = "1em";
+            createForm() {
+                const formDiv = document.createElement("div");
+                formDiv.className = "ui form";
+                formDiv.style.marginTop = "1em";
 
-        const fieldsDiv = document.createElement("div");
-        fieldsDiv.className = "fields inline";
+                const fieldsDiv = document.createElement("div");
+                fieldsDiv.className = "fields inline";
 
-        // === Start Time Field ===
-        const startFieldDiv = document.createElement("div");
-        startFieldDiv.className = "field six wide labeled";
+                // === Start Time Field ===
+                const startFieldDiv = document.createElement("div");
+                startFieldDiv.className = "field six wide labeled";
 
-        const startLabel = document.createElement("div");
-        startLabel.className = "ui label";
-        startLabel.textContent = "Start Time";
+                const startLabel = document.createElement("div");
+                startLabel.className = "ui label";
+                startLabel.textContent = "Start Time";
 
-        const startInput = document.createElement("input");
-        startInput.type = "time";
-        startInput.id = `startTimeInput-${this.instanceId}`;
+                const startInput = document.createElement("input");
+                startInput.type = "time";
+                startInput.id = `startTimeInput-${this.instanceId}`;
 
-        startFieldDiv.appendChild(startLabel);
-        startFieldDiv.appendChild(startInput);
+                startFieldDiv.appendChild(startLabel);
+                startFieldDiv.appendChild(startInput);
 
-        // === End Time Field ===
-        const endFieldDiv = document.createElement("div");
-        endFieldDiv.className = "field six wide labeled";
+                // === End Time Field ===
+                const endFieldDiv = document.createElement("div");
+                endFieldDiv.className = "field six wide labeled";
 
-        const endLabel = document.createElement("div");
-        endLabel.className = "ui label";
-        endLabel.textContent = "End Time";
+                const endLabel = document.createElement("div");
+                endLabel.className = "ui label";
+                endLabel.textContent = "End Time";
 
-        const endInput = document.createElement("input");
-        endInput.type = "time";
-        endInput.id = `endTimeInput-${this.instanceId}`;
+                const endInput = document.createElement("input");
+                endInput.type = "time";
+                endInput.id = `endTimeInput-${this.instanceId}`;
 
-        endFieldDiv.appendChild(endLabel);
-        endFieldDiv.appendChild(endInput);
+                endFieldDiv.appendChild(endLabel);
+                endFieldDiv.appendChild(endInput);
 
-        // === Buttons Field ===
-        const buttonFieldDiv = document.createElement("div");
-        buttonFieldDiv.className = "field four wide";
+                // === Buttons Field ===
+                const buttonFieldDiv = document.createElement("div");
+                buttonFieldDiv.className = "field four wide";
 
-        const buttonGroupDiv = document.createElement("div");
-        buttonGroupDiv.className = "ui buttons circular";
+                const buttonGroupDiv = document.createElement("div");
+                buttonGroupDiv.className = "ui buttons circular";
 
-        const applyBtn = document.createElement("button");
-        applyBtn.className = "ui blue small basic button";
-        applyBtn.id = `applyFilterBtn-${this.instanceId}`;
-        applyBtn.textContent = "Apply";
+                const applyBtn = document.createElement("button");
+                applyBtn.className = "ui blue small basic button";
+                applyBtn.id = `applyFilterBtn-${this.instanceId}`;
+                applyBtn.textContent = "Apply";
 
-        const clearBtn = document.createElement("button");
-        clearBtn.className = "ui basic small button";
-        clearBtn.id = `applyFilterClearBtn-${this.instanceId}`;
-        clearBtn.textContent = "Clear";
+                const clearBtn = document.createElement("button");
+                clearBtn.className = "ui basic small button";
+                clearBtn.id = `applyFilterClearBtn-${this.instanceId}`;
+                clearBtn.textContent = "Clear";
 
-        buttonGroupDiv.appendChild(applyBtn);
-        buttonGroupDiv.appendChild(clearBtn);
-        buttonFieldDiv.appendChild(buttonGroupDiv);
+                buttonGroupDiv.appendChild(applyBtn);
+                buttonGroupDiv.appendChild(clearBtn);
+                buttonFieldDiv.appendChild(buttonGroupDiv);
 
-        fieldsDiv.appendChild(startFieldDiv);
-        fieldsDiv.appendChild(endFieldDiv);
-        fieldsDiv.appendChild(buttonFieldDiv);
-        formDiv.appendChild(fieldsDiv);
+                fieldsDiv.appendChild(startFieldDiv);
+                fieldsDiv.appendChild(endFieldDiv);
+                fieldsDiv.appendChild(buttonFieldDiv);
+                formDiv.appendChild(fieldsDiv);
 
-        if (this.container) {
-            this.container.appendChild(formDiv);
-        } else {
-            console.warn("Container not found!");
+                if (this.container) {
+                    this.container.appendChild(formDiv);
+                } else {
+                    console.warn("Container not found!");
+                }
+            }
         }
-    }
-}
-
 
         class FolderManager {
             constructor() {
@@ -1433,13 +1441,12 @@ class TimeFilterForm {
                 this.heartbeatChartCtx = document.getElementById('heartbeatChart').getContext('2d');
                 this.cumulativeCountChartCtx = document.getElementById('cumulativeCountChart').getContext('2d');
 
+                this.loadMoreBtn = document.getElementById("loadMoreBtn");
                 this.imageDeck = document.getElementById('image-deck');
                 this.playSlideshowBtn = document.getElementById('playSlideshowBtn');
                 this.saved = JSON.parse(localStorage.getItem('savedFilenames') || '[]');
                 this.applyFilterBtn = document.getElementById('applyFilterBtn');
                 this.applyFilterClearBtn = document.getElementById('applyFilterClearBtn');
-                this.startTimeInputCardGrid = document.getElementById('startTimeInputCardGrid');
-                this.endTimeInputCardGrid = document.getElementById('endTimeInputCardGrid');
                 this.startTimeInput = document.getElementById('startTimeInput');
                 this.endTimeInput = document.getElementById('endTimeInput');
 
@@ -1554,6 +1561,7 @@ class TimeFilterForm {
 
 
                 this.cachedFiles = []; // will store all parsed files after initial read
+                this.isReloading = false;
                 this.groupKey = [];
                 this.arryInfo = null;
                 this.sortByRecent = false; // default: no sorting
@@ -1564,18 +1572,32 @@ class TimeFilterForm {
                 this.selectedCardData = null;
                 this.trendVisualizer = null;
                 this.updateSearch = this.updateSearch.bind(this);
-                this.updatedCache =false;
+                this.updatedCache = false;
 
                 this.cardHeight = 404 * 3; // Estimate or measure this
                 this.buffer = 6;      // Buffer before/after visible range
 
                 this.ITEMS_PER_PAGE = 20;
 
+                this.onOffData = [];
+
+
+
+                this.state = {
+                    allResults: [],
+                    nextStartAfter: null,
+                    hasMore: true
+                };
 
                 this.visibleCardCount = Math.ceil(this.cardGridContainer.clientHeight / this.cardHeight);
                 this.filteredFiles = null;
                 this.init();
 
+            }
+
+            timeControlComponent(container, id) {
+                const timeControl = new TimeFilterForm(container, id);
+                timeControl.createForm();
             }
 
             animatedCounter(el, target) {
@@ -1611,6 +1633,7 @@ class TimeFilterForm {
                 this.reloadBtn?.addEventListener('click', () => this.readFolderContents());
                 this.viewToggle?.addEventListener('change', () => this.toggleView());
                 this.autoReloadToggle?.addEventListener('change', () => this.toggleAutoReload());
+                this.loadMoreBtn?.addEventListener('click', () => this.loadMore(this.dirHandle));
                 this.clearDateBtn?.addEventListener('click', () => this.clearDate())
                 this.saveBtn?.addEventListener('click', () => this.toggleSave());
                 this.cardGridView = document.getElementById('cardGridView');
@@ -1659,23 +1682,25 @@ class TimeFilterForm {
                         this.setFolder();
                         if (!this.autoReloadInterval) {
                             this.autoReloadInterval = setInterval(() => {
-                                if (this.dirHandle) {
+                                if (this.dirHandle && !this.isReloading) {
                                     this.updatedCache = true;
                                     this.backgroundReloadCache();
                                 }
                             }, 30000);
                         }
+
                     } else if (this.dirHandle.name !== this.dirSelectedHandle) {
                         alert(`Please select the ${this.dirSelectedHandle} folder`)
                         this.setFolder();
                         if (!this.autoReloadInterval) {
                             this.autoReloadInterval = setInterval(() => {
-                                if (this.dirHandle) {
+                                if (this.dirHandle && !this.isReloading) {
                                     this.updatedCache = true;
                                     this.backgroundReloadCache();
                                 }
                             }, 30000);
                         }
+
                     }
                 })
 
@@ -1718,10 +1743,6 @@ class TimeFilterForm {
                         this.endTime = null;
                     }
 
-                    /* this.renderTimelineChart();
-                    this.renderHeartbeatChart();
-                    this.renderCumulativeCountChart();
-                    this.renderCardGrid(); */
                     this.filterAndRenderFiles();
                 });
 
@@ -1762,7 +1783,7 @@ class TimeFilterForm {
                 this.trendVisualizer = new TrendVisualizer('trend-container', []);
                 this.trendVisualizerCards = new TrendVisualizerCards('trend-container-card', [], this.animatedCounter);
 
-                this.cachedFiles = await this.queryRecentFilesByDirHandle('FS');
+                //this.cachedFiles = await this.queryRecentFilesByDirHandle()
 
                 await this.loadTimeSeriesData();
                 await this.loadGroupKeyData();
@@ -1772,17 +1793,52 @@ class TimeFilterForm {
                 setTimeout(() => this.hideLoader(), 2000);
             }
 
+            systemUpTime(data = this.onOffData) {
+                if (!Array.isArray(data) || data.length < 2) return { onTimeMs: 0, offTimeMs: 0, percentOn: 0 };
+
+                // Sort chronologically
+                const sorted = [...data].sort((a, b) => new Date(a.x) - new Date(b.x));
+
+                let onTimeMs = 0;
+                let offTimeMs = 0;
+
+                for (let i = 1; i < sorted.length; i++) {
+                    const prev = sorted[i - 1];
+                    const curr = sorted[i];
+
+                    const t1 = new Date(prev.x).getTime();
+                    const t2 = new Date(curr.x).getTime();
+                    const duration = t2 - t1;
+
+                    if (prev.y === 1) {
+                        onTimeMs += duration;
+                    } else {
+                        offTimeMs += duration;
+                    }
+                }
+
+                const totalTime = onTimeMs + offTimeMs;
+                const percentOn = totalTime > 0 ? (onTimeMs / totalTime) * 100 : 0;
+
+                return {
+                    onTimeMs,
+                    offTimeMs,
+                    percentOn: +percentOn.toFixed(2)
+                };
+            }
+
             extractLabelValue(labels, key) {
                 const label = labels.find(l => l.startsWith(`${key}=`));
                 return label ? parseInt(label.split('=')[1], 10) : 0;
             }
 
-            analyzeTrends(currentGroupKey, targetDate) {
+            async analyzeTrends(currentGroupKey, targetDate) {
                 let totalFail = 0;
                 let totalPass = 0;
                 const classificationFailures = {};
 
-                this.cachedFiles.forEach(item => {
+                const resData = await this.getDBdata();
+                resData.forEach(item => {
                     const groupKey = item.groupKey;
                     const date = new Date(item.date).toISOString().split('T')[0];
 
@@ -1834,8 +1890,8 @@ class TimeFilterForm {
                 this.rangeend = new Date().toISOString();
             }
 
-            searchNumDropdown() {
-                const f = this.cachedFiles.filter(item => this.matchesFilters(item));
+            async searchNumDropdown() {
+                const f = await this.getDBdata();
                 this.dropNumSearch.innerHTML = '';
                 this.dropNumSearch.innerHTML =
                     this.groupKey.map(item => f.some(i => i.groupKey === item) ? `<div class="item" data-value="${item}">${item}</div>` : null).join('');
@@ -1886,8 +1942,8 @@ class TimeFilterForm {
 
             }
 
-            getHealthIndicator() {
-                const errorRate = this.getErrorRate();
+            async getHealthIndicator() {
+                const errorRate = await this.getErrorRate();
 
                 let healthStatus = '';
                 let color = '';
@@ -1929,16 +1985,18 @@ class TimeFilterForm {
 
             }
 
-            getRecentActivity(days = 7) {
+            async getRecentActivity(days = 7) {
                 const cutoff = new Date();
                 cutoff.setDate(cutoff.getDate() - days);
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
+
                 return filteredItems.filter(item => new Date(item.date) >= cutoff);
             }
 
-            getErrorRate() {
+            async getErrorRate() {
                 let totalFails = 0, totalPasses = 0;
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
+
                 filteredItems.forEach(item => {
 
                     item.labels.forEach(label => {
@@ -1951,9 +2009,9 @@ class TimeFilterForm {
                 return total === 0 ? 0 : (totalFails / total) * 100;
             }
 
-            getMostCommonPredictedClass() {
+            async getMostCommonPredictedClass() {
                 const classCounts = {};
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
                 filteredItems.forEach(item => {
                     item.labels.forEach(label => {
                         if (label.includes("PredictedClass=") && !label.includes("OK")) {
@@ -1967,9 +2025,9 @@ class TimeFilterForm {
                 return sorted[0] || null;
             }
 
-            getTopGroupKeys(n = 5) {
+            async getTopGroupKeys(n = 5) {
                 const groupMap = {};
-                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+                const filteredItems = await this.getDBdata();
 
                 filteredItems.forEach(item => {
                     groupMap[item.groupKey] = (groupMap[item.groupKey] || 0) + 1;
@@ -1995,8 +2053,8 @@ class TimeFilterForm {
 
             }
 
-            insertGroupedDates(page = 1, rowsPerPage = 10) {
-                const grouped = this.groupDataByKey();
+            async insertGroupedDates(page = 1, rowsPerPage = 10) {
+                const grouped = await this.groupDataByKey();
                 const container = this.groupKeyTableFilter;
                 if (!container) return;
 
@@ -2114,9 +2172,9 @@ class TimeFilterForm {
                 $('.popUp-Btn').popup();
             }
 
-            groupDataByKey() {
+            async groupDataByKey() {
                 const grouped = {};
-                const filteredItems = this.cachedFiles.filter(item => this.matchesFilters(item));
+                const filteredItems = await this.getDBdata();
 
                 for (const item of filteredItems) {
                     const key = item.groupKey;
@@ -2129,21 +2187,30 @@ class TimeFilterForm {
                     grouped[key].add(dateOnly);
                 }
 
-                return Object.entries(grouped).map(([groupName, dateSet]) => {
-                    const data = Array.from(dateSet).sort().map(date => {
-                        const ratioData = this.analyzeTrends(groupName, date);
-                        return {
-                            date,
-                            ...ratioData
-                        };
-                    });
+                const result = await Promise.all(
+                    Object.entries(grouped).map(async ([groupName, dateSet]) => {
+                        const dates = Array.from(dateSet).sort();
 
-                    return {
-                        groupName,
-                        data
-                    };
-                });
+                        const data = await Promise.all(
+                            dates.map(async (date) => {
+                                const ratioData = await this.analyzeTrends(groupName, date);
+                                return {
+                                    date,
+                                    ...ratioData,
+                                };
+                            })
+                        );
+
+                        return {
+                            groupName,
+                            data,
+                        };
+                    })
+                );
+
+                return result;
             }
+
 
             renderSummaryContainer(recent, errRate, commonClass) {
                 // Root grid
@@ -2223,9 +2290,9 @@ class TimeFilterForm {
 
             }
 
-            renderSummary() {
+            async renderSummary() {
                 const recent = this.getRecentActivity(7).length;
-                const errRate = this.getErrorRate().toFixed(2);
+                // const errRate = await this.getErrorRate().toFixed(2);
                 const commonClass = this.getMostCommonPredictedClass()?.[0] || "N/A";
                 // this.renderSummaryContainer();
             }
@@ -2238,11 +2305,197 @@ class TimeFilterForm {
                     position,
                     showProgress: 'bottom',
                     classProgress: 'red',
-                    class:classData
+                    class: classData
                 });
             }
 
+            
             async backgroundReloadCache() {
+                if (!this.dirHandle || !this.updatedCache || this.isReloading) return;
+
+                this.isReloading = true;
+
+                try {
+                    console.log('[AutoReload] Cache check started at', new Date().toLocaleTimeString());
+
+                    this.toastMessage({ title: 'Cache check started!', message: 'Loading...', position: 'bottom right' });
+
+                    const groupedFiles = {};
+                    const now = new Date();
+                    const allFiles = await this.getAllFilesAndFolders(this.dirHandle, false);
+
+                    if (!this.isReloading) return; // ✅ Abort mid-process
+
+                    const existingNames = await this.getAllFileNamesByKey();
+                    const newFilePairs = [];
+                    let count = 0;
+
+                    for (const fileObj of allFiles) {
+                        if (!this.isReloading) return; // ✅ Abort during loop
+
+                        const { svgHandle } = fileObj;
+                        const name = svgHandle.name;
+                        const cached = existingNames.has(svgHandle.name);
+
+                        if (!cached) {
+                            newFilePairs.push(fileObj);
+                        } else {
+                            const group = groupedFiles[cached.groupKey] ||= [];
+                            group.push(cached);
+                        }
+                    }
+
+                    if (!this.isReloading) return;
+
+                    const resData = await this.queryRecentFilesByDirHandle();
+                    const newFileNames = new Set(newFilePairs.map(f => f.svgHandle.name));
+                    const existingFileNames = new Set(resData.results.map(f => f.name));
+
+                    const added = newFilePairs.filter(f => !existingFileNames.has(f.svgHandle.name));
+                    const removed = resData.results.filter(f => !existingFileNames.has(f.name));
+
+                    let updated = false;
+
+                    if (added.length > 0) {
+                        const addedGrouped = {};
+                        const results = await this.processBatch(added, addedGrouped, now, false);
+                        count = results;
+                        updated = true;
+                    }
+
+                    if (!this.isReloading) return;
+
+                    if (removed.length > 0) {
+                        updated = false;
+                    }
+
+                    if (updated) {
+                        this.filterAndRenderFiles();
+                        this.showNewLabel({ live: true, count });
+
+                        this.toastMessage({
+                            title: 'Cache updated!',
+                            message: 'Files reloaded.',
+                            displayTime: 2000,
+                            classData: 'success',
+                            position: 'bottom right'
+                        });
+
+                        console.log('[AutoReload] Cache updated at', new Date().toLocaleTimeString());
+                    } else {
+                        this.showNewLabel({ live: false });
+
+                        this.toastMessage({
+                            title: 'No cache update needed!',
+                            message: 'Everything is up to date.',
+                            displayTime: 3000,
+                            position: 'bottom right'
+                        });
+
+                        console.log('[AutoReload] No update needed at', new Date().toLocaleTimeString());
+                    }
+
+                } catch (err) {
+                    console.error('[AutoReload] Error during cache reload:', err);
+                } finally {
+                    this.isReloading = false;
+                }
+            }
+
+
+            async backgroundReloadCache2() {
+                if (!this.dirHandle || !this.updatedCache || this.isReloading) return;
+
+                this.isReloading = true; // Lock
+                this.updatedCache = false; // Reset update trigger
+
+                try {
+                    console.log('[AutoReload] Cache check started at', new Date().toLocaleTimeString());
+
+                    this.toastMessage({
+                        title: 'Cache check started!',
+                        message: 'Loading...',
+                        position: 'bottom right'
+                    });
+
+                    const groupedFiles = {};
+                    const now = new Date();
+                    const allFiles = await this.getAllFilesAndFolders(this.dirHandle, false);
+                    const existingNames = await this.getAllFileNamesByKey();
+                    const newFilePairs = [];
+                    let count = 0;
+
+                    for (const fileObj of allFiles) {
+                        const { svgHandle } = fileObj;
+                        const name = svgHandle.name;
+                        const cached = existingNames.has(svgHandle.name);
+
+                        if (!cached) {
+                            newFilePairs.push(fileObj);
+                        } else {
+                            const group = groupedFiles[cached.groupKey] ||= [];
+                            group.push(cached);
+                        }
+                    }
+
+                    console.log('[AutoReload] File scan completed at', new Date().toLocaleTimeString());
+
+                    const resData = await this.queryRecentFilesByDirHandle();
+                    const newFileNames = new Set(newFilePairs.map(f => f.svgHandle.name));
+                    const existingFileNames = new Set(resData.results.map(f => f.name));
+
+                    const added = newFilePairs.filter(f => !existingFileNames.has(f.svgHandle.name));
+                    const removed = resData.results.filter(f => !existingFileNames.has(f.name));
+
+                    let updated = false;
+
+                    if (added.length > 0) {
+                        const addedGrouped = {};
+                        const results = await this.processBatch(added, addedGrouped, now, false);
+                        count = results;
+                        updated = true;
+                        console.log('[AutoReload] New files processed at', new Date().toLocaleTimeString());
+                    }
+
+                    if (removed.length > 0) {
+                        updated = false;
+                        console.log('[AutoReload] Removed missing files at', new Date().toLocaleTimeString());
+                    }
+
+                    if (updated) {
+                        this.filterAndRenderFiles();
+                        this.showNewLabel({ live: true, count: count });
+
+                        this.toastMessage({
+                            title: 'Cache updated!',
+                            message: 'Files reloaded.',
+                            displayTime: 2000,
+                            classData: 'success',
+                            position: 'bottom right'
+                        });
+
+                        console.log('[AutoReload] Cache updated at', new Date().toLocaleTimeString());
+                    } else {
+                        this.showNewLabel({ live: false });
+
+                        this.toastMessage({
+                            title: 'No cache update needed!',
+                            message: 'Everything is up to date.',
+                            displayTime: 3000,
+                            position: 'bottom right'
+                        });
+
+                        console.log('[AutoReload] No update needed at', new Date().toLocaleTimeString());
+                    }
+                } catch (err) {
+                    console.error('[AutoReload] Error during cache reload:', err);
+                } finally {
+                    this.isReloading = false; // Unlock
+                }
+            }
+
+
+            async backgroundReloadCacheOld() {
                 if (!this.dirHandle) return;
                 if (!this.updatedCache) return;
 
@@ -2304,7 +2557,7 @@ class TimeFilterForm {
                     updated = true;
 
                     console.log('[AutoReload] Removed missing files at', new Date().toLocaleTimeString());
-                    
+
                 }
 
                 // === Update UI if any changes ===
@@ -2312,8 +2565,8 @@ class TimeFilterForm {
                     this.filterAndRenderFiles();
                     console.log('[AutoReload] Cache updated at', new Date().toLocaleTimeString());
                     this.showNewLabel({ live: true, count: this.cachedFiles.length });
-                    
-                         this.toastMessage({
+
+                    this.toastMessage({
                         title: 'Cache updated!',
                         message: 'Loading',
                         displayTime: 5000,
@@ -2323,7 +2576,7 @@ class TimeFilterForm {
                 } else {
                     console.log('[AutoReload] No cache update needed at', new Date().toLocaleTimeString());
                     this.showNewLabel({ live: false });
-                   
+
                     this.toastMessage({
                         title: 'No cache update needed!',
                         message: 'Loading',
@@ -2332,75 +2585,7 @@ class TimeFilterForm {
                     });
                 }
 
-                this.updatedCache= !this.updatedCache;
-            }
-
-
-
-            async backgroundReloadCacheOld() {
-                if (!this.dirHandle) return;
-                console.log('[AutoReload] Cache started at', new Date().toLocaleTimeString());
-
-
-                const groupedFiles = {};
-                const now = new Date();
-
-                const newFileHandles = [];
-                for await (const entry of this.dirHandle.values()) {
-                    if (entry.kind === 'file' && entry.name.endsWith('.svg')) {
-                        const cached = await this.isFileInDB(entry.name);
-
-                        if (!cached) {
-                            newFileHandles.push(entry); // Queue for processing
-                        } else {
-                            // Preload cached result directly into groupedFiles
-                            const group = groupedFiles[cached.groupKey] ||= [];
-                            group.push(cached);
-                        }
-                    }
-                }
-                console.log('[AutoReload] Get Cache completed at', new Date().toLocaleTimeString());
-
-                const newFileNames = new Set(newFileHandles.map(f => f.name));
-                const existingFileNames = new Set(this.cachedFiles.map(f => f.name));
-
-                const addedFiles = [...newFileHandles].filter(f => !existingFileNames.has(f.name));
-                const removedFiles = [...this.cachedFiles].filter(f => !newFileNames.has(f.name));
-
-                let updated = false;
-
-                // Process new files
-                /*                 for (const entry of addedFiles) {
-                                    const fileObj = await this.processSvgFile(entry.name, {}, now, false);
-                                    if (fileObj) {
-                                        this.cachedFiles.push(fileObj);
-                                        updated = true;
-                                    }
-                                } */
-
-
-                const completedBatchUpdate = await this.processBatch(newFileHandles, groupedFiles, now, false);
-
-                updated = await completedBatchUpdate ?? false;
-
-                if (!updated) {
-                    console.log('[AutoReload] Process Cache completed at', new Date().toLocaleTimeString());
-                    this.showNewLabel({ live: false });
-                }
-
-                // Remove deleted files
-                if (removedFiles.length) {
-                    this.cachedFiles = this.cachedFiles.filter(f => newFileNames.has(f.name));
-                    updated = true;
-                    console.log('[AutoReload] Cache not updated at', new Date().toLocaleTimeString());
-                    this.showNewLabel({ live: false });
-                }
-
-                if (updated) {
-                    this.filterAndRenderFiles();
-                    console.log('[AutoReload] Cache updated at', new Date().toLocaleTimeString());
-                    this.showNewLabel({ live: true, count: this.cachedFiles.length - addedFiles.length });
-                }
+                this.updatedCache = !this.updatedCache;
             }
 
             async selectFolder() {
@@ -2427,6 +2612,7 @@ class TimeFilterForm {
                     console.error("Folder selection cancelled or failed:", e);
                 }
             }
+
             startSlideshow() {
                 if (this.slideshowInterval) {
                     clearInterval(this.slideshowInterval);
@@ -2590,7 +2776,6 @@ class TimeFilterForm {
                 card.appendChild(extraContentDiv)
             }
 
-
             async buildImageCardContent(card, file) {
 
                 const imageDiv = await this.loadImageObs(file);
@@ -2598,7 +2783,6 @@ class TimeFilterForm {
                 card.appendChild(imageDiv);
 
             }
-
 
             async runBatched(tasks, batchSize = 21) {
                 let index = 0;
@@ -2608,7 +2792,6 @@ class TimeFilterForm {
                     index += batchSize;
                 }
             }
-
 
             async renderCardGrid1() {
                 const filteredFiles = this.getFilteredFiles().filter(file =>
@@ -2735,7 +2918,7 @@ class TimeFilterForm {
                     const tasks = entries.map(entry => async () => {
                         const card = entry.target;
                         const index = parseInt(card.dataset.index);
-                        const file = this.cachedFiles[index];
+                        const file = await this.queryRecentFilesByDirHandle()[index];
 
 
                         if (entry.isIntersecting) {
@@ -2921,55 +3104,151 @@ class TimeFilterForm {
 
                 return matchesSearch && matchesLabel;
             }
-            createGauge({ value = 75, max = 100, label = '', size = 150, color = '#21ba45' }) {
-                // Create container
+
+            createGauge({
+                value = 75,
+                max = 100,
+                label = '',
+                invertColors = false,
+                fullColor = false,
+                color = '#767676'
+            }) {
+                let currentValue = 0; // Track the animated value
+
+                // Create DOM elements (as in your original code)
                 const container = document.createElement('div');
                 container.className = 'gauge-container';
-                container.style.display = 'inline-block';
+                container.style.width = '100%';
+                container.style.maxWidth = '250px';
+                container.style.margin = '0 auto';
+                container.style.position = 'relative';
                 container.style.textAlign = 'center';
 
-                // Create canvas
                 const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+                canvas.style.display = 'block';
                 container.appendChild(canvas);
 
-                const ctx = canvas.getContext('2d');
-                const radius = size / 2;
-                const lineWidth = 12;
-                const center = size / 2;
+                const labelDiv = document.createElement('div');
+                labelDiv.style.marginTop = '-10px';
+                labelDiv.style.fontSize = '1.2em';
+                container.appendChild(labelDiv);
 
-                // Clear
-                ctx.clearRect(0, 0, size, size);
+                // Core drawing function
+                function drawGauge(size, animatedValue = value) {
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = size;
+                    canvas.height = size / 1.1;
 
-                // Background arc (full circle)
-                ctx.beginPath();
-                ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = '#333'; // background track
-                ctx.arc(center, center, radius - lineWidth, Math.PI, 0);
-                ctx.stroke();
+                    const centerX = size / 2;
+                    const centerY = size / 1.5;
+                    const radius = size / 2.9;
+                    const lineWidth = 14;
 
-                // Foreground arc (value)
-                const angle = Math.PI * (value / max);
-                ctx.beginPath();
-                ctx.strokeStyle = color;
-                ctx.arc(center, center, radius - lineWidth, Math.PI, Math.PI + angle, false);
-                ctx.stroke();
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Text
-                const textDiv = document.createElement('h2');
-                textDiv.className = 'ui header'
-                textDiv.style.marginTop = '-60px';
+                    const redColor = invertColors ? '#21ba45' : '#db2828';
+                    const greenColor = invertColors ? '#db2828' : '#21ba45';
 
+                    ctx.beginPath();
+                    ctx.lineWidth = lineWidth;
+                    ctx.strokeStyle = !fullColor ? redColor : color;
+                    ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + Math.PI / 2, false);
+                    ctx.stroke();
 
-                textDiv.innerHTML = `
-        <strong>${label}</strong><br/>
-        ${value}/${max} (${((value / max) * 100).toFixed(0)}%)
-    `;
-                container.appendChild(textDiv);
+                    ctx.beginPath();
+                    ctx.strokeStyle = !fullColor ? greenColor : color;
+                    ctx.arc(centerX, centerY, radius, Math.PI + Math.PI / 2, 2 * Math.PI, false);
+                    ctx.stroke();
 
+                    // Foreground arc
+                    const valueAngle = Math.PI + (Math.PI * (animatedValue / max));
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.arc(centerX, centerY, radius + 1, Math.PI, valueAngle, false);
+                    ctx.stroke();
+
+                    // Ticks and labels
+                    const percentages = [0, 25, 50, 75, 100];
+                    ctx.font = `${Math.max(10, size / 25)}px sans-serif`;
+                    ctx.fillStyle = '#444';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    percentages.forEach(pct => {
+                        const angle = Math.PI + (pct / 100) * Math.PI;
+                        const labelRadius = radius + 18;
+                        const labelX = centerX + labelRadius * Math.cos(angle);
+                        const labelY = centerY + labelRadius * Math.sin(angle);
+                        ctx.fillText(`${pct}%`, labelX, labelY);
+                    });
+
+                    // Needle
+                    const needleLength = radius - 10;
+                    const needleX = centerX + needleLength * Math.cos(valueAngle);
+                    const needleY = centerY + needleLength * Math.sin(valueAngle);
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(needleX, needleY);
+                    ctx.stroke();
+
+                    // Hub
+                    ctx.beginPath();
+                    ctx.fillStyle = '#000';
+                    ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Label
+                    labelDiv.innerHTML = `
+            <strong>${label}</strong><br/>
+            ${Math.floor(animatedValue)}/${max} (${((animatedValue / max) * 100).toFixed(0)}%)
+        `;
+                }
+
+                // Animate needle (like animatedCounter)
+                function animateNeedle(toValue) {
+                    const startTime = performance.now();
+                    const fromValue = currentValue;
+                    const duration = 1000;
+
+                    function animateFrame(currentTime) {
+                        const progress = Math.min((currentTime - startTime) / duration, 1);
+                        currentValue = fromValue + (toValue - fromValue) * progress;
+
+                        const width = container.clientWidth;
+                        drawGauge(width, currentValue);
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animateFrame);
+                        }
+                    }
+
+                    requestAnimationFrame(animateFrame);
+                }
+
+                // Initial draw
+                const resizeObserver = new ResizeObserver(entries => {
+                    for (let entry of entries) {
+                        const width = entry.contentRect.width;
+                        drawGauge(width, currentValue);
+                    }
+                });
+
+                resizeObserver.observe(container);
+
+                // Kick off animation
+                animateNeedle(value);
+
+                // Return container for DOM use
                 return container;
             }
+
+
 
             createStatColumn(stat) {
                 const percentage = (stat?.value / stat?.total) * 100;
@@ -2977,7 +3256,7 @@ class TimeFilterForm {
 
                 // Outer column
                 const column = document.createElement('div');
-                column.className = 'column five wide';
+                column.className = 'column four wide';
 
                 // Inverted Segment
                 const segment = document.createElement('div');
@@ -3001,11 +3280,13 @@ class TimeFilterForm {
                     value: stat.value,
                     max: stat.total,
                     label: '', // Label already above
-                    size: 120,
+                    size: 220,
                     color: stat.color === 'red' ? '#db2828' :
                         stat.color === 'green' ? '#21ba45' :
                             stat.color === 'orange' ? '#f2711c' :
-                                '#767676'
+                                '#767676',
+                    invertColors: stat.invertColors,
+                    fullColor: stat.fullColor
                 });
 
                 // Assemble
@@ -3070,8 +3351,13 @@ class TimeFilterForm {
                 return wrapper;
             }
 
+            async getDBdata() {
+                const filteredData = await this.queryRecentFilesByDirHandle()
+                const ftD = filteredData.results.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                return ftD;
+            }
 
-            renderStatsAMain() {
+            async renderStatsAMain() {
 
                 this.statsHtmlMainHeaderStats.innerHTML = '';
                 this.statsHtmlMain.innerHTML = '';
@@ -3080,8 +3366,7 @@ class TimeFilterForm {
                 const predictedClassCounts = {};
 
                 // Filtered items using reusable filter method
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
-
+                const filteredItems = await this.getDBdata();
                 filteredItems.forEach(item => {
                     item.labels.forEach(label => {
                         if (label.startsWith("Job.Pass=")) {
@@ -3096,16 +3381,31 @@ class TimeFilterForm {
                 });
 
                 const totalItems = totalPass + totalFail;
-
+                const uptime = this.systemUpTime()
                 const statHeaderData = document.createElement('div');
                 statHeaderData.className = ' ui grid';
                 const sRow = document.createElement('div');
                 sRow.className = 'row'
 
                 const stats = [
-                    { total: totalItems, value: totalItems, label: "Total Items", color: 'teal' },
+                    { total: totalItems, value: totalItems, label: "Total Items", color: 'teal', fullColor: true },
                     { total: totalItems, value: totalPass, label: "Total Passes", color: 'green' },
-                    { total: totalItems, value: totalFail, label: "Total Fails", color: 'red' }
+                    {
+                        total: totalItems,
+                        value: totalFail,
+                        label: "Total Fails",
+                        color: 'red',
+                        invertColors: true
+                    },
+                    {
+                        total: ((uptime.offTimeMs + uptime.onTimeMs) / 60000).toFixed(0),
+                        value: (uptime.onTimeMs / 60000).toFixed(0),
+                        label: "Uptime (mins)",
+                        color: 'orange',
+                        fullColor: true
+                    }
+
+
                 ];
 
                 stats.forEach(stat => {
@@ -3125,10 +3425,10 @@ class TimeFilterForm {
                     .map(([day, rate]) => ({ day, rate }));
             }
 
-            getPredictedClassDistribution() {
+            async getPredictedClassDistribution() {
                 const classCounts = {};
                 // Filter items first
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
 
                 filteredItems.forEach(item => {
                     item.labels.forEach(label => {
@@ -3142,10 +3442,10 @@ class TimeFilterForm {
                 return classCounts;
             }
 
-            getPassFailByGroup() {
+            async getPassFailByGroup() {
                 const groupStats = {};
                 // Filter items first
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
 
                 filteredItems.forEach(item => {
                     const group = item.groupKey;
@@ -3160,12 +3460,11 @@ class TimeFilterForm {
                 return groupStats;
             }
 
-            getErrorRateTrend() {
+            async getErrorRateTrend() {
                 // returns an object: { '2025-06-04': 5, '2025-06-05': 2, ... }
                 const trend = {};
                 // Filter items first
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
-
+                const filteredItems = await this.getDBdata();
                 filteredItems.forEach(item => {
                     const day = new Date(item.date).toISOString().split('T')[0];
                     if (!trend[day]) trend[day] = { pass: 0, fail: 0 };
@@ -3186,13 +3485,13 @@ class TimeFilterForm {
                 return errorRateTrend;
             }
 
-            computeStatsData() {
+            async computeStatsData() {
                 let totalPass = 0;
                 let totalFail = 0;
                 const predictedClassCounts = {};
 
                 // Filter items
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
+                const filteredItems = await this.getDBdata();
 
                 filteredItems.forEach(item => {
                     item.labels.forEach(label => {
@@ -3225,16 +3524,21 @@ class TimeFilterForm {
                 };
             }
 
-            renderStats() {
+            async renderStats() {
+
+                const statsGrid = await this.makeStatsGrid();
+                this.statsHtml.innerHTML = ''; // Clear existing content
+                this.statsHtml.appendChild(statsGrid);
+
+            }
+
+            async getStatsData() {
                 let totalPass = 0;
                 let totalFail = 0;
                 const predictedClassCounts = {};
 
-                // Filter items first
-                const filteredItems = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) });
-
+                const filteredItems = await this.getDBdata();
                 filteredItems.forEach(item => {
-
                     item.labels.forEach(label => {
                         if (label.startsWith("Job.Pass=")) {
                             totalPass += parseInt(label.split("=")[1]);
@@ -3247,88 +3551,149 @@ class TimeFilterForm {
                     });
                 });
 
-                const totalItems = totalPass + totalFail;
-
-                // Get more insights
-                const errorRateTrend = this.getErrorRateTrend();
-                const alerts = this.checkAlerts(5); // Alert if error rate > 5%
+                const errorRateTrend = await this.getErrorRateTrend();
+                const alerts = this.checkAlerts(5);
                 const passFailByGroup = this.getPassFailByGroup();
 
-                // Format the error rate trend as a simple list or stats
                 const errorRateHtml = Object.entries(errorRateTrend).map(([day, rate]) => `
-    <div class="column">
-        <div class="ui segment center aligned red inverted">
-                <div class="ui  statistic inverted">
-      <div class="value">${rate.toFixed(0)}%</div>
-      <div class="label">Errors on ${day}</div>
-    </div>
-    </div>
-    </div>
-  `).join("");
+        <div class="column">
+            <div class="ui segment center aligned red inverted">
+                <div class="ui statistic inverted">
+                    <div class="value">${rate.toFixed(0)}%</div>
+                    <div class="label">Errors on ${day}</div>
+                </div>
+            </div>
+        </div>
+    `).join("");
 
-                // Format alerts (if any)
                 const alertsHtml = alerts.length > 0 ? `
-    <div class="ui red message">
-      <strong>Alerts:</strong> High error rates detected on days:
-      ${alerts.map(a => a.day).join(", ")}
-    </div>
-  ` : "";
+        <div class="ui red message">
+            <strong>Alerts:</strong> High error rates detected on days:
+            ${alerts.map(a => a.day).join(", ")}
+        </div>
+    ` : "";
 
-                // Format pass/fail by groupKey summary (top 3)
                 const groupsHtml = Object.entries(passFailByGroup)
                     .slice(0, 5)
                     .map(([group, counts]) => {
                         const totalGroup = counts.pass + counts.fail;
                         const failRate = totalGroup === 0 ? 0 : (counts.fail / totalGroup) * 100;
                         return `
-                        <div class="column">
-        <div class="ui segment center aligned inverted green">
-      <div class="ui  statistic inverted">
-        <div class="value">${failRate.toFixed(0)}%</div>
-        <div class="label"> Part #:${group}</div>
-      </div>
-      </div>
-      </div>`;
+                <div class="column">
+                    <div class="ui segment center aligned inverted green">
+                        <div class="ui statistic inverted">
+                            <div class="value">${failRate.toFixed(0)}%</div>
+                            <div class="label">Part #: ${group}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
                     }).join("");
 
-                // Predicted classes summary (top 3)
                 const predictedHtml = Object.entries(predictedClassCounts)
                     .slice(0, 5)
                     .map(([cls, count]) => `
-                    <div class="column">
-        <div class="ui segment center aligned yellow inverted">
-      <div class="ui  statistic inverted">
-        <div class="value">${count}</div>
-        <div class="label">Predicted: ${cls}</div>
-      </div>
-      </div>
-      </div>
-    `).join("");
-
-                // Compose full HTML summary
-                const statsHtml = `<div class="ui grid">
-                    <div class="row">
-                    ${this.makeStatSegment({ color: 'yellow', size: 'four', value: predictedHtml, label: "Top 5 Predicted Classes" })}
-                    ${this.makeStatSegment({ color: 'red', size: 'four', value: errorRateHtml, label: "Error Rate Trend" })}
-                    ${this.makeStatSegment({ color: 'green', size: 'four', value: groupsHtml, label: "Top 5 Fail Rate by Group", alert: alertsHtml })}
+            <div class="column">
+                <div class="ui segment center aligned yellow inverted">
+                    <div class="ui statistic inverted">
+                        <div class="value">${count}</div>
+                        <div class="label">Predicted: ${cls}</div>
                     </div>
-                    </div>`;
+                </div>
+            </div>
+        `).join("");
 
-                this.statsHtml.innerHTML = statsHtml;
+                return {
+                    predictedHtml,
+                    errorRateHtml,
+                    groupsHtml,
+                    alertsHtml
+                };
+            }
+
+
+            async makeStatsGrid() {
+
+                const { predictedHtml, errorRateHtml, groupsHtml, alertsHtml } = await this.getStatsData();
+
+                const grid = document.createElement('div');
+                grid.className = 'ui grid';
+
+                const row = document.createElement('div');
+                row.className = 'row';
+
+                // Build each segment using this.makeStatSegment()
+                const predictedSegment = this.makeStatSegment({
+                    color: 'yellow',
+                    size: 'four',
+                    value: this.predictedHtml,
+                    label: 'Top 5 Predicted Classes'
+                });
+
+                const errorRateSegment = this.makeStatSegment({
+                    color: 'red',
+                    size: 'four',
+                    value: this.errorRateHtml,
+                    label: 'Error Rate Trend'
+                });
+
+                const groupsSegment = this.makeStatSegment({
+                    color: 'green',
+                    size: 'four',
+                    value: this.groupsHtml,
+                    label: 'Top 5 Fail Rate by Group',
+                    alert: this.alertsHtml
+                });
+
+                // Append all segments to the row
+                row.appendChild(predictedSegment);
+                row.appendChild(errorRateSegment);
+                row.appendChild(groupsSegment);
+
+                // Append row to grid
+                grid.appendChild(row);
+
+                return grid;
             }
 
             makeStatSegment(item) {
-                return `
-                <div class="column ${item.size} wide">
-                    <h3 class="ui header attached top ">${item.label}</h3>
-                     <div class=" ui segment inverted ${item.color} attached bottom  ">
-                        <div class="ui one column grid">${item.value}</div>
-                        <div class="ui one column grid">${item.alert ? item.alert : ''}</div>
-                        </div>
-                    </div>`
+                // Outer column div
+                const column = document.createElement('div');
+                column.className = `column ${item.size} wide`;
+
+                // Header element
+                const header = document.createElement('h3');
+                header.className = 'ui header attached top';
+                header.textContent = item.label;
+
+                // Segment container
+                const segment = document.createElement('div');
+                segment.className = `ui segment inverted ${item.color} attached bottom`;
+
+                // Value row
+                const valueGrid = document.createElement('div');
+                valueGrid.className = 'ui one column grid';
+                valueGrid.textContent = item.value;
+
+                // Alert row (optional)
+                const alertGrid = document.createElement('div');
+                alertGrid.className = 'ui one column grid';
+                alertGrid.textContent = item.alert || '';
+
+                // Append to segment
+                segment.appendChild(valueGrid);
+                segment.appendChild(alertGrid);
+
+                // Append header and segment to column
+                column.appendChild(header);
+                column.appendChild(segment);
+
+                return column;
             }
 
+
             sortFilesByDate(files, recentFirst = true) {
+
                 return files.sort((a, b) => {
                     const dateA = new Date(a.date);
                     const dateB = new Date(b.date);
@@ -3336,12 +3701,13 @@ class TimeFilterForm {
                 });
             }
 
-            imagePreviewDropdown() {
+
+            async imagePreviewDropdown() {
                 const groupedFiles = {};
                 this.summaryData = {};
                 this.availableFilters.clear();
 
-                for (const file of this.cachedFiles) {
+                for (const file of await this.getDBdata()) {
 
                     // If there is a search query, filter the files based on it
                     if (this.search && !file.name.toLowerCase().includes(this.search.toLowerCase()) &&
@@ -3377,15 +3743,17 @@ class TimeFilterForm {
                 }
                 return groupedFiles;
             }
+
             clearData() {
                 this.timeSeriesData = [];
                 this.summaryData = {};
                 this.searchTheseNames = [];
-                this.progressBar = 0;
+                this.progressBar = 50;
                 this.dates = [];
                 this.groupKey = [];
                 this.arryInfo = null;
                 this.timeSeriesData = [];
+                this.onOffData = [];
 
             }
 
@@ -3394,38 +3762,47 @@ class TimeFilterForm {
 
                 clearInterval(this.autoReloadInterval);
                 this.autoReloadInterval = null;
+                this.isReloading = true;
                 console.log("Auto-reload stopped.");
 
-                this.clearData()
-                // Render the filtered files and charts
-                this.cachedFiles = await this.queryRecentFilesByDirHandle();
-                await this.loadTimeSeriesData();
-                await this.loadGroupKeyData();
-                await this.loadAvailableFiltersData();
-                const groupedFiles = this.imagePreviewDropdown()
-                this.renderGroupedFiles(groupedFiles);
-                this.renderSummaryChart();
-                this.renderFilterDropdown();
-                this.renderTimelineChart();
-                this.renderHeartbeatChart();
-                this.renderCumulativeCountChart();
-                this.renderStats();
-                this.renderStatsAMain();
-                this.renderSummary();
-                this.getHealthIndicator();
-                await this.renderCardGrid();
-                this.setupCalendarDates();
-                this.renderTrendVisualizer();
-                this.insertGroupedDates();
-                this.search = null;
-                this.searchNumDropdown();
-                this.hideLoader();
-                this.toggleAutoReload();
+                try {
+                    this.clearData()
+                    // Render the filtered files and charts
+                    // this.cachedFiles = await this.queryRecentFilesByDirHandle().then(res => res.results).catch(e => console.warn(e))
+                    await this.loadTimeSeriesData();
+                    await this.loadGroupKeyData();
+                    await this.loadAvailableFiltersData();
+                    const groupedFiles = await this.imagePreviewDropdown()
+                    this.renderGroupedFiles(groupedFiles);
+                    this.renderSummaryChart();
+                    this.renderFilterDropdown();
+                    this.renderTimelineChart();
+                    this.renderHeartbeatChart();
+                    this.renderCumulativeCountChart();
+                    this.renderStats();
+                    this.renderStatsAMain();
+                    this.renderSummary();
+                    this.getHealthIndicator();
+                    await this.renderCardGrid();
+                    this.setupCalendarDates();
+                    this.renderTrendVisualizer();
+                    this.insertGroupedDates();
+                    this.search = null;
+                    this.searchNumDropdown();
+                    this.hideLoader();
+                    this.toggleAutoReload();
+                    console.log(this.systemUpTime())
+
+                } catch (error) {
+                    console.warn(error)
+                } finally {
+                    this.isReloading = false;
+                }
 
             }
 
-            renderTrendVisualizer() {
-                const filtered = this.cachedFiles.filter(item => { return this.matchesFilters(item) && this.isWithinTimeWindow(item.date) })
+            async renderTrendVisualizer() {
+                const filtered = await this.getDBdata();
                 this.trendVisualizer = new TrendVisualizer('trend-container', filtered);
                 this.trendVisualizerCards = new TrendVisualizerCards('trend-container-card', filtered, this.animatedCounter, this.updateSearch);
             }
@@ -3537,154 +3914,6 @@ class TimeFilterForm {
                 document.getElementById('globalLoader')?.style.setProperty('display', 'none');
             }
 
-            processBatchO = async (batch, groupedFiles, now, showTrained) => {
-                const results = await Promise.all(
-                    batch.map(entry => this.processSvgFile(entry.name, groupedFiles, now, showTrained))
-                );
-                this.cachedFiles.push(...results.filter(Boolean));
-            };
-
-            parseTxtContentInWorker(txtContent, svgName, showTrained, savedList, filterString) {
-                return new Promise((resolve, reject) => {
-                    const workerCode = `
-      onmessage = function(e) {
-        const { txtContent, svgName, showTrained, saved, filterString } = e.data;
-
-        try {
-          const kvPairs = txtContent.split(',').map(e => {
-            const [k, v] = e.split(':').map(x => x.trim());
-            return { key: k, value: v };
-          });
-
-          if (filterString && !kvPairs.some(({ key, value }) => \`\${key}=\${value}\` === filterString)) {
-            postMessage(null); return;
-          }
-
-          if (!showTrained && saved.includes(svgName)) {
-            postMessage(null); return;
-          }
-
-          const keySet = new Set();
-          for (const { key } of kvPairs) {
-            if (keySet.has(key)) {
-              postMessage(null); return;
-            }
-            keySet.add(key);
-          }
-
-          const parts = svgName.split('_');
-          const groupKey = parts[0];
-          const sortVal = parseInt(parts[2].replace('.svg', ''));
-
-          const labels = kvPairs.map(({ key, value }) => \`\${key}=\${value}\`);
-
-          postMessage({
-            groupKey,
-            sortVal,
-            labels
-          });
-        } catch (err) {
-          postMessage(null);
-        }
-      };
-    `;
-
-                    const blob = new Blob([workerCode], { type: "application/javascript" });
-                    const worker = new Worker(URL.createObjectURL(blob));
-
-                    worker.postMessage({
-                        txtContent,
-                        svgName,
-                        showTrained,
-                        saved: savedList,
-                        filterString
-                    });
-
-                    worker.onmessage = (e) => {
-                        worker.terminate();
-                        resolve(e.data); // either parsed data or null
-                    };
-
-                    worker.onerror = (err) => {
-                        worker.terminate();
-                        reject(err);
-                    };
-                });
-            }
-
-            async processSvgFile2(svgName, groupedFiles, now, showTrained) {
-                const txtName = svgName.replace('.svg', '.txt');
-
-                try {
-                    const [svgHandle, txtHandle] = await Promise.all([
-                        this.dirHandle.getFileHandle(svgName),
-                        this.dirHandle.getFileHandle(txtName)
-                    ]);
-
-                    const [svgFile, txtFile] = await Promise.all([
-                        svgHandle.getFile(),
-                        txtHandle.getFile()
-                    ]);
-
-                    const fileDate = new Date(svgFile.lastModified);
-                    if (!this.passesDateFilter(fileDate)) return;
-
-                    const txtContent = await txtFile.text();
-
-                    // 🔁 Offload parsing + filtering to worker
-                    const parsed = await this.parseTxtContentInWorker(
-                        txtContent,
-                        svgName,
-                        showTrained,
-                        this.saved,
-                        this.filterString
-                    );
-
-                    if (!parsed) return;
-
-                    // 🔁 Add to main thread state
-                    const { groupKey, sortVal, labels } = parsed;
-
-                    if (!groupedFiles[groupKey]) groupedFiles[groupKey] = [];
-                    groupedFiles[groupKey].push({
-                        name: svgName,
-                        sortValue: sortVal,
-                        content: txtContent
-                    });
-
-                    if (!this.groupKey.includes(groupKey)) this.groupKey.push(groupKey);
-
-                    for (const label of labels) {
-                        this.summaryData[label] = (this.summaryData[label] || 0) + 1;
-                        this.availableFilters.add(label);
-                    }
-
-                    this.timeSeriesData.push({
-                        timestamp: fileDate.toISOString(),
-                        file: svgName,
-                        label: svgName.replace('.svg', ''),
-                        labels
-                    });
-
-                    this.dates.push({
-                        date: fileDate.toLocaleDateString(),
-                        message: `Captured PN: ${svgName.split('_')[0]}`,
-                    });
-
-                    return {
-                        name: svgName,
-                        groupKey,
-                        sortValue: sortVal,
-                        content: txtContent,
-                        date: fileDate.toISOString(),
-                        labels
-                    };
-
-                } catch (e) {
-                    console.warn(`Skipping ${svgName}: ${e.message}`);
-                    return null;
-                }
-            }
 
             //////////////////////////////////// DB Functions ////////////////////////////////////////////////
 
@@ -3708,6 +3937,78 @@ class TimeFilterForm {
                     request.onerror = (event) => reject(event.target.error);
                 });
             }
+
+            async queryRecentFilesByDirHandleNew(dirHandle, options = {}) {
+                const {
+                    startAfter = null, // Pass the key to start after
+                    batchSize = 5000     // Number of items per batch
+                } = options;
+
+                const db = await this.openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction('files', 'readonly');
+                    const store = tx.objectStore('files');
+                    const dateIndex = store.index('date');
+
+                    // Calculate the date range
+                    const now = new Date();
+                    const pastTime = new Date();
+                    pastTime.setDate(now.getDate() - 2);
+
+                    const lowerBound = pastTime.toISOString();
+                    const upperBound = now.toISOString();
+
+                    let keyRange;
+
+                    if (this.calStart === null) {
+                        keyRange = IDBKeyRange.bound(lowerBound, upperBound);
+                    } else {
+                        const upper = new Date(this.calStart).toISOString();
+                        const lower = new Date(this.calEnd).toISOString();
+                        const [min, max] = upper < lower ? [upper, lower] : [lower, upper];
+                        keyRange = min === max ? IDBKeyRange.only(min) : IDBKeyRange.bound(min, max);
+                    }
+
+                    const direction = 'next';
+                    const request = dateIndex.openCursor(keyRange, direction);
+
+                    const results = [];
+                    let skipping = !!startAfter;
+                    let count = 0;
+
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (!cursor) {
+                            return resolve({ results, nextStartAfter: null });
+                        }
+
+                        if (skipping) {
+                            if (cursor.key <= startAfter) {
+                                cursor.continue();
+                                return;
+                            } else {
+                                skipping = false;
+                            }
+                        }
+
+                        const item = cursor.value;
+                        if (item.dirHandle === this.dirSelectedHandle) {
+                            results.push(item);
+                            count++;
+                        }
+
+                        if (count >= batchSize) {
+                            // Return batch and next key to continue from
+                            return resolve({ results, nextStartAfter: cursor.key });
+                        }
+
+                        cursor.continue();
+                    };
+
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
 
             async queryRecentFilesByDirHandle(dirHandle) {
                 const db = await this.openDB();
@@ -3752,14 +4053,13 @@ class TimeFilterForm {
                             }
                             cursor.continue();
                         } else {
-                            resolve(results);
+                            resolve({ results: results });
                         }
                     };
 
                     request.onerror = (event) => reject(event.target.error);
                 });
             }
-
 
             async loadAllCachedFiles() {
                 const db = await this.openDB();
@@ -3824,7 +4124,6 @@ class TimeFilterForm {
                 });
             }
 
-
             async clearDB() {
                 const db = await this.openDB();
                 const tx = db.transaction('files', 'readwrite');
@@ -3839,7 +4138,7 @@ class TimeFilterForm {
                     const tx = db.transaction('files', 'readwrite');
                     const store = tx.objectStore('files');
 
-                    const getRequest = store.get(name);
+                    const getRequest = store.put(name);
 
                     getRequest.onsuccess = () => {
                         const data = getRequest.result;
@@ -3861,6 +4160,31 @@ class TimeFilterForm {
                 });
             }
 
+            async getAllFileNames() {
+                const db = await this.openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction('files', 'readonly');
+                    const store = tx.objectStore('files');
+                    const request = store.getAllKeys();
+
+                    request.onsuccess = () => resolve(new Set(request.result));  // Set for fast lookup
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            }
+
+            async getAllFileNamesByKey() {
+                const db = await this.openDB();
+                const tx = db.transaction('files', 'readonly');
+                const store = tx.objectStore('files');
+                const index = store.index('dirHandle');
+
+                const request = index.getAllKeys(this.dirSelectedHandle); // ✅ This gets primary keys only
+
+                return await new Promise((resolve, reject) => {
+                    request.onsuccess = () => resolve(new Set(request.result)); // returns Set of file names
+                    request.onerror = (e) => reject(e.target.error);
+                });
+            }
 
             async readFolderContents() {
 
@@ -3872,6 +4196,7 @@ class TimeFilterForm {
                 this.timeSeriesData = [];
                 if (!this.dirHandle) return;
 
+
                 this.imageList.innerHTML = '';
                 this.summaryData = {};
                 this.availableFilters.clear();
@@ -3883,23 +4208,28 @@ class TimeFilterForm {
 
                 const fileHandles = [];
 
+                const files = await this.getAllFilesAndFolders(this.dirHandle, true);
                 // Scan all .svg files and filter by cache
-                for await (const entry of this.dirHandle.values()) {
-                    if (entry.kind === 'file' && entry.name.endsWith('.svg')) {
-                        const cached = await this.isFileInDB(entry.name);
+                const existingFileNames = await this.getAllFileNames();
 
-                        if (!cached) {
-                            fileHandles.push(entry); // Queue for processing
+                for await (const entry of files) {
+                    const { svgHandle } = entry
+                    if (svgHandle.kind === 'file' && svgHandle.name.endsWith('.svg')) {
+                        if (!existingFileNames.has(svgHandle.name)) {
+
+                            fileHandles.push(entry);
                         } else {
-                            // Preload cached result directly into groupedFiles
+                            const cached = await this.isFileInDB(svgHandle.name);
                             const group = groupedFiles[cached.groupKey] ||= [];
                             group.push(cached);
                         }
                     }
+
                 }
 
+
                 const concurrency = 300;
-                const initialRenderCount = 6000;
+                const initialRenderCount = 1000;
 
                 const firstBatch = fileHandles.slice(0, initialRenderCount);
                 for (let i = 0; i < firstBatch.length; i += concurrency) {
@@ -3923,7 +4253,6 @@ class TimeFilterForm {
                 const backgroundProcess = async (startIdx) => {
                     if (startIdx >= remainingHandles.length) {
                         this.filterAndRenderFiles();
-                        location.reload();
                         return;
                     }
 
@@ -3940,97 +4269,92 @@ class TimeFilterForm {
 
             }
 
-            processBatch = async (batch, groupedFiles, now, showTrained) => {
-                const results = await Promise.all(
-                    batch.map(async entry => {
+            async processSvgFile(svgHandle, txtHandle, fullPath, groupedFiles, now, showTrained) {
+                const svgName = svgHandle.name;
 
-                        const result = await this.processSvgFile(entry.name, groupedFiles, now, showTrained);
-                        if (result) {
-                            // Cache in IndexedDB
-                            await this.saveFileToDB(result);
-
-
-                            return result;
-                        }
-                        return null;
-                    })
-                );
-
-                this.cachedFiles.push(...results.filter(Boolean));
-            };
-
-            /////////////////////////////////////////////////////////////////////////////////////////////////
-
-            async readFolderContentsO() {
-                this.showLoader();
-                this.timeSeriesData = [];
-                if (!this.dirHandle) return;
-
-                this.imageList.innerHTML = '';
-                this.summaryData = {};
-                this.availableFilters.clear();
-                this.cachedFiles = [];
-
-                const groupedFiles = {};
-                const now = new Date();
-                const showTrained = document.getElementById('showTrainedToggle')?.checked;
-                const fileHandles = [];
-
-
-                for await (const entry of this.dirHandle.values()) {
-                    if (entry.kind === 'file' && entry.name.endsWith('.svg')) {
-                        fileHandles.push(entry);
-                    }
+                if (!txtHandle) {
+                    //  console.warn(`Missing TXT file for: ${svgName}`);
+                    return null;
                 }
 
-                const concurrency = 300;
-                const initialRenderCount = 6000;
+                try {
+                    const [svgFile, txtFile] = await Promise.all([
+                        svgHandle.getFile(),
+                        txtHandle.getFile()
+                    ]);
 
-                const firstBatch = fileHandles.slice(0, initialRenderCount);
-                for (let i = 0; i < firstBatch.length; i += concurrency) {
-                    const batch = firstBatch.slice(i, i + concurrency);
-                    await this.processBatch(batch, groupedFiles, now, showTrained);
+                    const fileDate = new Date(svgFile.lastModified);
+                    if (!this.passesDateFilter(fileDate)) return;
 
-                    const progress = Math.min(100, Math.round((i + concurrency) / fileHandles.length * 100));
-
-                    $('#progressBar').progress({
-                        percent: progress,
-                        total: `${progress}%`
+                    this.dates.push({
+                        date: fileDate.toLocaleDateString(),
+                        message: `Captured PN: ${svgName.split('_')[0]}`,
                     });
 
-                }
+                    const txtContent = await txtFile.text();
+                    const kvPairs = txtContent.split(',').map(e => {
+                        const [k, v] = e.split(':').map(x => x.trim());
+                        return { key: k, value: v };
+                    });
 
-                this.renderGroupedFiles(groupedFiles);
-                this.filterAndRenderFiles();
-                this.setupCalendarDates();
-
-                const remainingHandles = fileHandles.slice(initialRenderCount);
-
-                //$('#toast-container').toast({ position: 'bottom right', displayTime: 0})
-
-                const backgroundProcess = async (startIdx) => {
-                    if (startIdx >= remainingHandles.length) {
-                        this.filterAndRenderFiles();
+                    if (this.filterString && !kvPairs.some(({ key, value }) => `${key}=${value}` === this.filterString)) {
                         return;
+                    }
+
+                    if (!showTrained && this.saved.includes(svgName)) return;
+
+                    const keySet = new Set();
+                    for (const { key } of kvPairs) {
+                        if (keySet.has(key)) return;
+                        keySet.add(key);
+                    }
+
+                    const parts = svgName.split('_');
+                    const groupKey = parts[0];
+                    const sortVal = parseInt(parts[2].replace('.svg', ''));
+
+                    if (!groupedFiles[groupKey]) groupedFiles[groupKey] = [];
+                    groupedFiles[groupKey].push({ name: svgName, sortValue: sortVal, content: txtContent });
+
+                    if (!this.groupKey.includes(groupKey)) {
+                        this.groupKey.push(groupKey);
+                    }
+
+                    for (const { key, value } of kvPairs) {
+                        if (!key || !value) continue;
+                        const label = `${key}=${value}`;
+                        this.summaryData[label] = (this.summaryData[label] || 0) + 1;
+                        this.availableFilters.add(label);
+                    }
+
+                    this.timeSeriesData.push({
+                        timestamp: fileDate.toISOString(),
+                        file: svgName,
+                        label: svgName.replace('.svg', ''),
+                        labels: kvPairs.map(({ key, value }) => `${key}=${value}`)
+                    });
+
+                    const dirPath = fullPath.includes('/')
+                        ? fullPath.substring(0, fullPath.lastIndexOf('/'))
+                        : fullPath;
+
+                    return {
+                        name: svgName,
+                        groupKey,
+                        sortValue: sortVal,
+                        content: txtContent,
+                        date: fileDate.toISOString(),
+                        labels: kvPairs.map(({ key, value }) => `${key}=${value}`),
+                        dirHandle: dirPath
                     };
 
-                    const batch = remainingHandles.slice(startIdx, startIdx + concurrency);
-                    await this.processBatch(batch, groupedFiles, now, showTrained);
-
-                    const progress = Math.min(100, Math.round((initialRenderCount + startIdx + concurrency) / fileHandles.length * 100));
-
-                    $('#toast-progress').progress('set percent', progress);
-
-                    // Use setTimeout to yield control back to the browser
-                    setTimeout(() => backgroundProcess(startIdx + concurrency), 10);
-                };
-
-                // Kick off background task
-                setTimeout(() => backgroundProcess(0), 0);
-                window.location.reload();
+                } catch (e) {
+                    console.warn(`Skipping ${svgName}: ${e.message}`);
+                    return null;
+                }
             }
 
-            async processSvgFile(svgName, groupedFiles, now, showTrained) {
+            async processSvgFileOld(svgName, groupedFiles, now, showTrained) {
                 const txtName = svgName.replace('.svg', '.txt');
 
                 try {
@@ -4115,9 +4439,245 @@ class TimeFilterForm {
                 }
             }
 
+            async getAllFilesAndFolders2(dirHandle, recursive = true, path = '') {
+                const files = [];
+
+                for await (const [name, handle] of dirHandle.entries()) {
+                    const currentPath = `${path}${name}`;
+
+                    if (handle.kind === 'directory') {
+                        if (recursive) {
+                            const sub = await this.getAllFilesAndFolders(handle, true, `${currentPath}/`);
+                            files.push(...sub);
+                        }
+                        continue;
+                    }
+
+                    if (handle.kind === 'file' && name.toLowerCase().endsWith('.svg')) {
+                        const txtName = name.replace(/\.svg$/i, '.txt');
+
+                        let txtHandle = null;
+                        try {
+                            txtHandle = await dirHandle.getFileHandle(txtName);
+                        } catch (e) {
+                            if (e.name !== 'NotFoundError') {
+                                console.error(`Error accessing ${txtName}:`, e);
+                            }
+                        }
+
+                        files.push({
+                            svgHandle: handle,
+                            txtHandle,
+                            path: currentPath
+                        });
+                    }
+                }
+
+                return files;
+            }
+
+            async getAllFilesAndFoldersNEw(dirHandle, {
+                recursive = true,
+                maxAgeMs = 60_000, // last minute
+                path = ''
+            } = {}) {
+                const recentFiles = [];
+
+                const now = Date.now();
+
+                for await (const [name, handle] of dirHandle.entries()) {
+                    const currentPath = `${path}${name}`;
+
+                    if (handle.kind === 'directory') {
+                        if (recursive) {
+                            const subFiles = await this.getAllFilesAndFoldersasync(handle, {
+                                recursive,
+                                maxAgeMs,
+                                path: `${currentPath}/`
+                            });
+                            recentFiles.push(...subFiles);
+                        }
+                        continue;
+                    }
+
+                    // Only handle .svg files
+                    if (!name.toLowerCase().endsWith('.svg')) continue;
+
+                    const file = await handle.getFile();
+                    const age = now - file.lastModified;
+
+                    if (age > maxAgeMs) continue; // ⛔️ Skip older files
+
+                    // Try to find the matching .txt file
+                    const txtName = name.replace(/\.svg$/i, '.txt');
+                    let txtHandle = null;
+
+                    try {
+                        txtHandle = await dirHandle.getFileHandle(txtName);
+                    } catch (e) {
+                        if (e.name !== 'NotFoundError') {
+                            console.warn(`Error accessing ${txtName}:`, e);
+                        }
+                    }
+
+                    recentFiles.push({
+                        svgHandle: handle,
+                        txtHandle,
+                        path: recursive ? currentPath : dirHandle.name,
+                        lastModified: file.lastModified
+                    });
+                }
+
+                return recentFiles;
+            }
+
+            async getAllFilesAndFolders(dirHandle, recursive = true, path = '') {
+                const files = [];
+
+                for await (const [name, handle] of dirHandle.entries()) {
+                    const currentPath = `${path}${name}`;
+
+                    if (handle.kind === 'directory') {
+                        if (recursive) {
+                            const sub = await this.getAllFilesAndFolders(handle, true, `${currentPath}/`);
+                            files.push(...sub);
+                        }
+                        continue;
+                    }
+
+                    if (handle.kind === 'file' && name.toLowerCase().endsWith('.svg')) {
+                        const txtName = name.replace(/\.svg$/i, '.txt');
+
+                        let txtHandle = null;
+                        try {
+                            txtHandle = await dirHandle.getFileHandle(txtName);
+                        } catch (e) {
+                            if (e.name !== 'NotFoundError') {
+                                console.warn(`Error accessing ${txtName}:`, e);
+                            }
+                        }
+
+                        // 👇 This is the fix
+                        const filePath = recursive ? currentPath : dirHandle.name;
+
+                        files.push({
+                            svgHandle: handle,
+                            txtHandle,
+                            path: filePath
+                        });
+                    }
+                }
+
+                return files;
+            }
+
+
+            async getAllFilesAndFoldersOld(dirHandle, path = '') {
+                const files = [];
+
+                for await (const [name, handle] of dirHandle.entries()) {
+                    const currentPath = `${path}${name}`;
+
+                    if (handle.kind === 'directory') {
+                        const sub = await this.getAllFilesAndFolders(handle, `${currentPath}/`);
+                        files.push(...sub);
+                    } else if (handle.kind === 'file' && name.endsWith('.svg')) {
+                        // Try to find the matching .txt file in the same directory
+                        const txtName = name.replace('.svg', '.txt');
+
+                        let txtHandle = null;
+                        try {
+                            txtHandle = await dirHandle.getFileHandle(txtName);
+                        } catch (e) {
+                            // File not found — leave txtHandle as null
+                        }
+
+                        files.push({
+                            svgHandle: handle,
+                            txtHandle,
+                            path: currentPath
+                        });
+                    }
+                }
+
+                return files;
+            }
+
+            processBatch = async (batch, groupedFiles, now, showTrained) => {
+                const results = await Promise.all(
+                    batch.map(async ({ svgHandle, txtHandle, path }) => {
+                        if (txtHandle === null) return;
+                        const result = await this.processSvgFile(svgHandle, txtHandle, path, groupedFiles, now, showTrained);
+                        //const result = await this.processSvgFile(entry.name, groupedFiles, now, showTrained);
+                        if (result) {
+                            // Cache in IndexedDB
+                            await this.saveFileToDB(result);
+                        }
+
+                        return result;
+                    })
+                );
+
+                // ✅ Only add matching dir handles to in-memory cachedFiles
+                const matchingResults = results.filter(item =>
+                    item && item.dirHandle === this.dirSelectedHandle
+                );
+                //this.cachedFiles.push(...matchingResults);
+                return matchingResults.length;
+            };
+
+
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+
+            updateState(response) {
+                this.cachedFiles.push(...response.results);
+                this.state.nextStartAfter = response.nextStartAfter;
+                this.state.hasMore = !!response.nextStartAfter;
+            }
+
+            async loadMore(dirHandle) {
+                const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+                // Disable the button immediately to prevent multiple clicks
+                loadMoreBtn.disabled = true;
+
+                // Exit early if no more results to load
+                if (!this.state.hasMore) {
+                    loadMoreBtn.style.display = 'none';
+                    this.filterAndRenderFiles();
+                    return;
+                } else {
+                    loadMoreBtn.style.display = 'block';
+                    this.filterAndRenderFiles();
+                    return;
+                }
+
+                // Fetch the next batch
+                const response = await this.queryRecentFilesByDirHandle(dirHandle, {
+                    startAfter: this.state.nextStartAfter,
+                    batchSize: 10
+                });
+
+                // Append the results and update state
+                this.cachedFiles.push(...response.results);
+                this.state.nextStartAfter = response.nextStartAfter;
+                this.state.hasMore = !!response.nextStartAfter;
+
+                // Hide or re-enable button based on whether more data exists
+                if (!this.state.hasMore) {
+                    loadMoreBtn.style.display = 'none';
+                } else {
+                    loadMoreBtn.disabled = false;
+                    this.filterAndRenderFiles();
+                }
+            }
+
+
+
             async loadTimeSeriesData() {
                 // Track for timeline chart
-                const tSData = await this.queryRecentFilesByDirHandle();
+                const tSData = await this.getDBdata();
                 tSData.forEach(file => {
                     this.timeSeriesData.push({
                         timestamp: file.date,
@@ -4131,7 +4691,7 @@ class TimeFilterForm {
             async loadGroupKeyData() {
                 // Track for timeline chart
                 const gKData = await this.queryRecentFilesByDirHandle();
-                gKData.forEach(file => {
+                gKData.results.forEach(file => {
                     this.groupKey.some(item => item === file.groupKey) ?
                         null : this.groupKey.push(file.groupKey);
                 });
@@ -4140,12 +4700,10 @@ class TimeFilterForm {
             async loadAvailableFiltersData() {
                 // Track for timeline chart
                 const aFData = await this.queryRecentFilesByDirHandle();
-                aFData.forEach(file => {
-                    this.availableFilters.add(file.label);
+                aFData.results.forEach(file => {
+                    this.availableFilters.add(file.labels);
                 });
             }
-
-
 
             passesDateFilter(fileDate) {
                 //const now = new Date();
@@ -4163,61 +4721,6 @@ class TimeFilterForm {
                 return (fileDateObj >= startDateObj && fileDateObj <= endDateObj);
 
             }
-
-            renderGroupedFilesOld(grouped) {
-                const fragment = document.createDocumentFragment();
-                for (const groupKey in grouped) {
-                    const files = grouped[groupKey].sort((a, b) => a.sortValue - b.sortValue);
-                    const titleDiv = document.createElement('div');
-                    titleDiv.className = 'title';
-                    titleDiv.innerHTML = `<i class="dropdown icon"></i>${groupKey} (${files.length})`;
-
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'content';
-
-                    const scrollWrap = document.createElement('div');
-                    scrollWrap.style.display = 'flex';
-                    scrollWrap.style.flexWrap = 'nowrap';
-                    scrollWrap.style.overflowX = 'auto';
-                    scrollWrap.style.gap = '10px';
-
-                    files.forEach(file => {
-                        const btnWrapper = document.createElement('div');
-                        const label = (file.content || '').split(',');
-                        const labelText = label[0]?.split(':')[1]?.trim() + '/' + (label[1]?.split(':')[1]?.trim() || '');
-
-                        const btn = document.createElement('div');
-                        btn.className = 'ui basic label';
-                        btn.style.cursor = 'pointer';
-                        btn.textContent = file.name;
-
-                        const detail = document.createElement('div');
-                        detail.className = 'detail';
-                        detail.textContent = labelText || 'N/A';
-                        btn.appendChild(detail);
-
-                        btn.onclick = () => this.loadImage(file.name, file.content);// Task use for modal
-
-                        if (this.saved.includes(file.name)) {
-                            btn.classList.add('red');
-                            btn.title = 'Already trained';
-                        }
-
-                        btnWrapper.appendChild(btn);
-                        scrollWrap.appendChild(btnWrapper);
-                    });
-
-                    contentDiv.appendChild(scrollWrap);
-                    fragment.appendChild(titleDiv);
-                    fragment.appendChild(contentDiv);
-                }
-
-                this.imageList.innerHTML = '';
-                this.imageList.appendChild(fragment);
-                $('.ui.accordion').accordion();
-            }
-
-
 
             formatToCentralTime(isoString) {
 
@@ -4255,7 +4758,6 @@ class TimeFilterForm {
                 }
 
             }
-
 
             extractFilesFromGroups(grouped) {
                 const allFiles = [];
@@ -4386,8 +4888,6 @@ class TimeFilterForm {
                 paginationControls.appendChild(lastBtn);
             }
 
-
-
             createNoImageMessage(file) {
                 // Create the outer message div
                 const messageDiv = document.createElement('div');
@@ -4418,7 +4918,6 @@ class TimeFilterForm {
 
                 return messageDiv;
             }
-
 
             async loadImage(svgFilename, txtContent) {
                 this.currentFilename = svgFilename;
@@ -4569,7 +5068,7 @@ class TimeFilterForm {
             async getFilteredFiles() {
 
                 let data = await this.queryRecentFilesByDirHandle('FS');
-                data.filter(file => {
+                const filteredData = data.results.filter(file => {
                     if (!this.passesDateFilter(file.date)) return false;
                     if (this.filterString && !file.labels.includes(this.filterString)) return false;
                     // If there is a search query, filter the files based on it
@@ -4581,9 +5080,9 @@ class TimeFilterForm {
                 });
 
                 if (this.sortByRecent) {
-                    return this.sortFilesByDate(data, true);
+                    return this.sortFilesByDate(filteredData, true);
                 } else {
-                    return this.sortFilesByDate(data, false);;
+                    return this.sortFilesByDate(filteredData, false);;
                 }
             }
 
@@ -4675,7 +5174,7 @@ class TimeFilterForm {
                     label: group,
                     data: grouped[group],
                     pointBackgroundColor: `hsl(${(i * 60) % 360}, 70%, 50%)`,
-                    pointRadius: 5
+                    pointRadius: 5,
                 }));
 
                 this.timelineChartInstance = new Chart(ctx, {
@@ -4687,7 +5186,7 @@ class TimeFilterForm {
                             x: {
                                 type: 'time',
                                 time: {
-                                    unit: 'minute',
+                                    // unit: 'minute',
                                     tooltipFormat: 'PPpp'
                                 },
                                 title: { display: true, text: 'Timestamp' }
@@ -4786,7 +5285,7 @@ class TimeFilterForm {
                 });
             }
 
-            renderCumulativeCountChart() {
+            renderCumulativeCountChartOld() {
                 const ctx = this.cumulativeCountChartCtx;
 
                 if (this.cumulativeCountChartInstance) {
@@ -4836,9 +5335,8 @@ class TimeFilterForm {
                         backgroundColor: `hsla(${(index * 60) % 360}, 70%, 40%, 0.2)`,
                         fill: false,
                         tension: 0.2,
-                        pointRadius: 0,
+                        pointRadius: 1,
                         showLine: true,
-
                     });
                 });
 
@@ -4881,7 +5379,7 @@ class TimeFilterForm {
                             x: {
                                 type: 'time',
                                 time: {
-                                    unit: 'minute',
+                                    // unit: 'minute',
                                     tooltipFormat: 'PPpp'
                                 },
                                 title: {
@@ -4917,6 +5415,167 @@ class TimeFilterForm {
                     }
                 });
             }
+
+            renderCumulativeCountChart() {
+                const ctx = this.cumulativeCountChartCtx;
+
+                if (this.cumulativeCountChartInstance) {
+                    this.cumulativeCountChartInstance.destroy();
+                }
+
+                const filteredData = this.timeSeriesData.filter(entry => {
+                    const fileDate = new Date(entry.timestamp);
+                    if (!this.dateRangeFilter(fileDate)) return false;
+                    if (!this.isWithinTimeWindow(fileDate)) return false;
+                    if (!this.matchesTimelineFilter(entry)) return false;
+
+                    return true;
+                });
+
+                const grouped = {};
+                filteredData.forEach(entry => {
+                    const prefix = entry.file.split('_')[0];
+                    if (!grouped[prefix]) grouped[prefix] = [];
+
+                    grouped[prefix].push({
+                        timestamp: new Date(entry.timestamp).getTime(),
+                        label: entry.file
+                    });
+                });
+
+                const datasets = [];
+
+                Object.keys(grouped).forEach((prefix, index) => {
+                    const entries = grouped[prefix].sort((a, b) => a.timestamp - b.timestamp);
+                    const cumulativeData = [];
+
+                    let count = 0;
+                    let previousTimestamp = null;
+                    const GAP_MS = 60000; // 1 minute
+
+                    entries.forEach(entry => {
+                        count += 1;
+                        const timestamp = new Date(entry.timestamp).getTime();
+                        const iso = new Date(timestamp).toISOString();
+                        cumulativeData.push({ x: iso, y: count });
+
+                        if (previousTimestamp !== null) {
+                            const gap = timestamp - previousTimestamp;
+                            if (gap > GAP_MS) {
+                                const offPointTime = previousTimestamp + 1;
+                                const onResumeTime = timestamp - 1;
+
+                                this.onOffData.push({ x: new Date(previousTimestamp).toISOString(), y: 1 });
+                                this.onOffData.push({ x: new Date(offPointTime).toISOString(), y: 0 }); // Step down
+                                this.onOffData.push({ x: new Date(onResumeTime).toISOString(), y: 0 });  // Still off before next
+                            }
+                        }
+
+                        this.onOffData.push({ x: iso, y: 1 });
+                        previousTimestamp = timestamp;
+                    });
+
+
+                    datasets.push({
+                        label: prefix,
+                        data: cumulativeData,
+                        borderColor: `hsl(${(index * 60) % 360}, 70%, 40%)`,
+                        backgroundColor: `hsla(${(index * 60) % 360}, 70%, 40%, 0.2)`,
+                        fill: false,
+                        tension: 0.2,
+                        pointRadius: 1,
+                        showLine: true,
+                        yAxisID: 'y',
+                        order: 0             // Drawn below on/off
+
+                    });
+                });
+
+                // Add ON/OFF step function
+                datasets.push({
+                    label: 'On/Off',
+                    data: this.onOffData,
+                    borderColor: 'black',
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    fill: true,
+                    stepped: true,
+                    pointRadius: 0,
+                    borderWidth: 2,
+                    yAxisID: 'y',      // ✅ Use the same axis
+                    stack: 'onoff',    // ✅ Different stack name
+                    type: 'line',
+                    order: 1         // ✅ Ensures it's drawn on top
+                });
+
+
+                this.cumulativeCountChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    tooltipFormat: 'PPpp'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Time'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Cumulative Count'
+                                },
+                                stacked: true
+                            },
+                            ySteps: {
+                                position: 'right',
+                                beginAtZero: true,
+                                max: 1,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: value => (value === 1 ? 'ON' : 'OFF')
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'On / Off'
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: context => {
+                                        const point = context.raw;
+                                        const label = context.dataset.label;
+                                        const dateStr = new Date(point.x).toLocaleTimeString();
+                                        if (label === 'On/Off') {
+                                            return `${label}: ${point.y === 1 ? 'ON' : 'OFF'} at ${dateStr}`;
+                                        }
+                                        return `${label}: ${point.y} total as of ${dateStr}`;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: false,
+                                text: 'Cumulative Count Over Time by Prefix'
+                            },
+                            legend: {
+                                display: true
+                            }
+                        }
+                    }
+                });
+            }
+
 
             renderHeartbeatChart() {
                 const ctx = this.heartbeatChartCtx;
@@ -4983,7 +5642,9 @@ class TimeFilterForm {
                         tension: 0.1,
                         stack: prefix, // allow stacking pass/fail per prefix
                         pointRadius: 0.5,
-                        showLine: true
+                        showLine: true,
+                        stepped: true
+
                     });
 
                     datasets.push({
@@ -4995,7 +5656,9 @@ class TimeFilterForm {
                         tension: 0.1,
                         stack: prefix, // allow stacking pass/fail per prefix
                         pointRadius: 0.5,
-                        showLine: true
+                        showLine: true,
+                        stepped: true,
+
                     });
                 });
 
@@ -5037,7 +5700,7 @@ class TimeFilterForm {
                             x: {
                                 type: 'time',
                                 time: {
-                                    unit: 'minute',
+                                    // unit: 'minute',
                                     tooltipFormat: 'PPpp'
                                 },
                                 title: {
@@ -5098,7 +5761,6 @@ class TimeFilterForm {
             clearDate() {
                 this.setCalendarDatesToDefault();
                 $('#specificDateCalendar').calendar('clear');
-                this.queryRecentFilesByDirHandle();
                 this.filterAndRenderFiles();
 
 
